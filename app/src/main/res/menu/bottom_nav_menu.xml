@@ -5,12 +5,13 @@
     <item
         android:id="@+id/studentsFragment"
         android:icon="@android:drawable/ic_dialog_dialer"
-        android:title="List" />
+        android:title="My Cars" />
     <item
         android:id="@+id/addStudentFragment"
-        android:icon="@android:drawable/ic_input_add"
-        android:title="Add" />
+        android:icon="@android:drawable/ic_search_category_default"
+        android:title="Search" />
     <item
-        android:icon="@android:drawable/ic_lock_lock"
-        android:title="About" />
+        android:id="@+id/profileInfoFragment"
+        android:icon="@android:drawable/ic_info"
+        android:title="My Profile" />
 </menu>
