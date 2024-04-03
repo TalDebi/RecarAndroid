@@ -29,4 +29,10 @@
         android:label="Add Student"
         tools:layout="@layout/fragment_add_student" />
     <action android:id="@+id/action_global_addStudentFragment" app:destination="@id/addStudentFragment" />
+    <fragment
+        android:id="@+id/profileInfoFragment"
+        android:name="com.idz.Recar.Modules.Profile.ProfileInfoFragment"
+        android:label="Profile Info"
+        tools:layout="@layout/fragment_profile_info">
+    </fragment>
 </navigation>
