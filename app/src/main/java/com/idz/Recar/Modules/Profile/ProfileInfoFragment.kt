@@ -8,10 +8,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.TextView
 import androidx.navigation.Navigation
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.Student
+import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
 
 class ProfileInfoFragment : Fragment() {
@@ -32,6 +34,9 @@ class ProfileInfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profile_info, container, false)
+        val editProfileButton: TextView = view.findViewById(R.id.name)
+        val action = Navigation.createNavigateOnClickListener(ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment())
+        editProfileButton.setOnClickListener(action)
         setupUI(view)
         return view
     }

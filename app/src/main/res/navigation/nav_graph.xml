@@ -34,5 +34,12 @@
         android:name="com.idz.Recar.Modules.Profile.ProfileInfoFragment"
         android:label="Profile Info"
         tools:layout="@layout/fragment_profile_info">
+        <action
+            android:id="@+id/action_profileInfoFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/profileEditFragment"
+        android:name="com.idz.Recar.Modules.Profile.ProfileEditFragment"
+        android:label="ProfileEditFragment" />
 </navigation>
