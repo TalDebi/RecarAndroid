@@ -14,6 +14,7 @@
         android:layout_height="200dp"
         android:layout_marginTop="8dp"
         android:scaleType="centerInside"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
