@@ -11,9 +11,10 @@
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/imageView"
         android:layout_width="0dp"
-        android:layout_height="150dp"
+        android:layout_height="200dp"
         android:layout_marginTop="8dp"
         android:scaleType="centerInside"
+        app:shapeAppearanceOverlay="@style/roundedImageView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -25,6 +26,10 @@
         android:layout_height="wrap_content"
         android:text="Tal Debi"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
+        app:drawableEndCompat="@drawable/ic_edit"
+        android:drawablePadding="8dp"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_constraintTop_toBottomOf="@id/imageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />

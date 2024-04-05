@@ -36,6 +36,18 @@
                       </LayoutPositions>
                     </value>
                   </entry>
+                  <entry key="profileEditFragment">
+                    <value>
+                      <LayoutPositions>
+                        <option name="myPosition">
+                          <Point>
+                            <option name="x" value="262" />
+                            <option name="y" value="683" />
+                          </Point>
+                        </option>
+                      </LayoutPositions>
+                    </value>
+                  </entry>
                   <entry key="profileInfoFragment">
                     <value>
                       <LayoutPositions>
