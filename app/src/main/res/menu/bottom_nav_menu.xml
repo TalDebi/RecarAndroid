@@ -7,7 +7,7 @@
         android:icon="@android:drawable/ic_dialog_dialer"
         android:title="My Cars" />
     <item
-        android:id="@+id/addStudentFragment"
+        android:id="@+id/searchFragment"
         android:icon="@android:drawable/ic_search_category_default"
         android:title="Search" />
     <item

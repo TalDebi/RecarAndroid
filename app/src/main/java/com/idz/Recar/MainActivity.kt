@@ -8,6 +8,7 @@ import android.view.MenuItem
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -23,11 +24,12 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment: NavHostFragment? =
             supportFragmentManager.findFragmentById(R.id.navHostMain) as? NavHostFragment
         navController = navHostFragment?.navController
-        navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
+//        navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
 
         val bottomNavigationView: BottomNavigationView =
             findViewById(R.id.mainActivityBottomNavigationView)
-        navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
+
+        navController?.let { bottomNavigationView.setupWithNavController(it) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {

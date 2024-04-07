@@ -42,4 +42,8 @@
         android:id="@+id/profileEditFragment"
         android:name="com.idz.Recar.Modules.Profile.ProfileEditFragment"
         android:label="ProfileEditFragment" />
+    <fragment
+        android:id="@+id/searchFragment"
+        android:name="com.idz.Recar.Modules.SearchFragment"
+        android:label="SearchFragment" />
 </navigation>
