@@ -6,6 +6,14 @@
     app:startDestination="@id/studentsFragment">
 
     <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.idz.Recar.Modules.Login.Login"
+        android:label="loginFragment" />
+    <fragment
+        android:id="@+id/registerFragment"
+        android:name="com.idz.Recar.Modules.Register.Register"
+        android:label="registerFragment" />
+    <fragment
         android:id="@+id/studentsFragment"
         android:name="com.idz.Recar.Modules.Students.StudentsFragment"
         android:label="Students List"

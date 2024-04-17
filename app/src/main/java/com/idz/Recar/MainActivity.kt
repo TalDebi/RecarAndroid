@@ -22,9 +22,14 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment: NavHostFragment? =
             supportFragmentManager.findFragmentById(R.id.navHostMain) as? NavHostFragment
+
         navController = navHostFragment?.navController
+
+        navController?.navigate(R.id.loginFragment)
+
         navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
 
+        navController?.navigate(R.id.loginFragment)
         val bottomNavigationView: BottomNavigationView =
             findViewById(R.id.mainActivityBottomNavigationView)
         navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
