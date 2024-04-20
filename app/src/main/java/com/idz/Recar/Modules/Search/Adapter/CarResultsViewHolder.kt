@@ -10,8 +10,8 @@ import com.idz.Recar.Modules.Students.CarResultRcyclerViewActivity
 import com.idz.Recar.Modules.Students.StudentsRcyclerViewActivity
 import com.idz.Recar.R
 
-class StudentViewHolder(val itemView: View,
-                        val listener: StudentsRcyclerViewActivity.OnItemClickListener?,
+class CarResultViewHolder(val itemView: View,
+                        val listener: CarResultRcyclerViewActivity.OnItemClickListener?,
                         var students: List<Student>?): RecyclerView.ViewHolder(itemView) {
 
     var nameTextView: TextView? = null
@@ -33,7 +33,7 @@ class StudentViewHolder(val itemView: View,
             Log.i("TAG", "StudentViewHolder: Position clicked $adapterPosition")
 
             listener?.onItemClick(adapterPosition)
-            listener?.onStudentClicked(student)
+            listener?.onCarClicked(student)
         }
     }
 
