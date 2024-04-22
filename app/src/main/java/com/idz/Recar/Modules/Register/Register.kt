@@ -13,6 +13,7 @@ import android.widget.TextView
 import androidx.navigation.Navigation
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.Student
+import com.idz.Recar.Modules.Login.LoginDirections
 import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
 
@@ -27,6 +28,12 @@ class Register : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_register, container, false)
+        val loginLink: TextView = view.findViewById(R.id.loginRedirectTextView)
+        var action = Navigation.createNavigateOnClickListener(RegisterDirections.actionRegisterFragmentToLoginFragment())
+        loginLink.setOnClickListener(action)
+        val registerButton: TextView = view.findViewById(R.id.registerButton)
+        action = Navigation.createNavigateOnClickListener(LoginDirections.actionRegisterFragmentToStudentsFragment())
+        registerButton.setOnClickListener(action)
         setupUI(view)
         return view
     }
