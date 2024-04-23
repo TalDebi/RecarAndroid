@@ -1,11 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground"
-    >
+    android:layout_height="125dp"
+    android:orientation="vertical"
+    android:padding="8dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:id="@+id/ivCarImage"
+            android:layout_width="100dp"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            android:src="@drawable/avatar"
+            android:adjustViewBounds="true"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_toEndOf="@id/ivCarImage"
+            android:layout_marginStart="8dp"
+            android:gravity="center">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_toEndOf="@id/ivCarImage"
+                >
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_toEndOf="@id/ivCarImage"
+                    android:gravity="center">
+
+                    <TextView
+                        android:id="@+id/tvCarMake"
+                        style="@style/TextAppearance.MaterialComponents.Headline6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Toyota"
+                        android:textColor="@color/black" />
+
+                    <TextView
+                        android:id="@+id/tvCarModel"
+                        style="@style/TextAppearance.MaterialComponents.Headline6"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Corola"
+                        android:textColor="@color/black"
+                        android:layout_marginStart="8dp" />
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvCarYear"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2020"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="4dp" />
+
+                <TextView
+                    android:id="@+id/tvCarCity"
+                    style="@style/TextAppearance.MaterialComponents.Body2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Holon"
+                    android:textColor="@color/black"
+                    android:layout_marginTop="4dp" />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvCarPrice"
+                style="@style/TextAppearance.MaterialComponents.Headline5"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="20000₪"
+                android:textColor="@color/black"
+                android:layout_marginLeft="24dp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/black" />
 
     <ImageView
         android:id="@+id/ivStudentListRowAvatar"
@@ -17,7 +110,8 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/avatar" />
+        app:srcCompat="@drawable/avatar"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tvStudentListRowName"
@@ -30,7 +124,8 @@
         app:layout_constraintEnd_toStartOf="@+id/cbStudentListRow"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/ivStudentListRowAvatar"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
 
     <TextView
         android:id="@+id/tvStudentListRowID"
@@ -43,7 +138,8 @@
         app:layout_constraintEnd_toStartOf="@+id/cbStudentListRow"
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toEndOf="@+id/ivStudentListRowAvatar"
-        app:layout_constraintTop_toBottomOf="@+id/tvStudentListRowName" />
+        app:layout_constraintTop_toBottomOf="@+id/tvStudentListRowName"
+        android:visibility="gone"/>
 
     <CheckBox
         android:id="@+id/cbStudentListRow"
@@ -52,5 +148,7 @@
         android:focusable="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"/>
+
+</LinearLayout>
