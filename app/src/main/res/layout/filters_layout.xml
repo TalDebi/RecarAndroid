@@ -17,20 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!--    <Button-->
-    <!--        android:id="@+id/button2"-->
-
-    <!--        style="?attr/materialIconButtonStyle"-->
-    <!--        android:layout_width="88dp"-->
-    <!--        android:layout_marginBottom="20dp"-->
-    <!--        android:contentDescription="standard_icon_btn_desc"-->
-    <!--        app:icon="@drawable/arrow_back_24px"-->
-    <!--        app:layout_constraintBottom_toTopOf="@+id/standard_side_sheet2"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintHorizontal_bias="0.932"-->
-    <!--        app:layout_constraintStart_toEndOf="@+id/textView3"-->
-    <!--        app:layout_constraintTop_toTopOf="parent" />-->
-
     <LinearLayout
 
         android:id="@+id/standard_side_sheet2"
@@ -56,15 +42,16 @@
             android:textSize="20sp" />
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+
+            >
 
             <AutoCompleteTextView
+                android:id="@+id/make_select"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="none"
-                app:simpleItems="@array/simple_items" />
+                android:layout_height="wrap_content" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -83,14 +70,15 @@
             android:textSize="20sp" />
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <AutoCompleteTextView
+                android:id="@+id/model_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
+                android:descendantFocusability="blocksDescendants"
                 app:simpleItems="@array/simple_items" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -110,11 +98,12 @@
             android:textSize="20sp" />
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <AutoCompleteTextView
+                android:id="@+id/color_select"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
@@ -137,10 +126,13 @@
             android:textSize="20sp" />
 
         <com.google.android.material.slider.RangeSlider
+            android:id="@+id/price_slider"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:valueFrom="0.0"
-            android:valueTo="100.0" />
+            android:stepSize="10000"
+            android:valueFrom="0"
+            android:valueTo="100000"
+            app:labelBehavior="visible" />
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
@@ -157,10 +149,13 @@
             android:textSize="20sp" />
 
         <com.google.android.material.slider.RangeSlider
+            android:id="@+id/year_slider"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:valueFrom="0.0"
-            android:valueTo="100.0" />
+            android:stepSize="2"
+            android:valueFrom="1994"
+            android:valueTo="2024"
+            app:labelBehavior="visible" />
 
         <com.google.android.material.divider.MaterialDivider
             android:layout_width="match_parent"
@@ -177,10 +172,13 @@
             android:textSize="20sp" />
 
         <com.google.android.material.slider.RangeSlider
+            android:id="@+id/mileage_slider"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:valueFrom="0.0"
-            android:valueTo="100.0" />
+            android:stepSize="20000"
+            android:valueFrom="0"
+            android:valueTo="500000"
+            app:labelBehavior="visible" />
 
 
     </LinearLayout>

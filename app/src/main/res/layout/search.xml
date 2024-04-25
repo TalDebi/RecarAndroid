@@ -54,39 +54,50 @@
             app:singleLine="true">
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip"
+                android:id="@+id/make_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="text"
-                app:closeIconVisible="true" />
+                android:visibility="gone"
+                app:chipIcon="@drawable/factory_24px" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip2"
+                android:id="@+id/model_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="text"
-                app:closeIconVisible="true" />
+                android:visibility="gone"
+                app:chipIcon="@drawable/directions_car_24px" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip3"
+                android:id="@+id/color_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="text"
-                app:closeIconVisible="true" />
+                android:visibility="gone"
+                app:chipIcon="@drawable/brush_24px" />
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip4"
+                android:id="@+id/price_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="text"
-                app:closeIconVisible="true" />
+                android:text="0₪-100,000₪"
+                app:chipIcon="@drawable/payments_24px" />
+
 
             <com.google.android.material.chip.Chip
-                android:id="@+id/chip5"
+                android:id="@+id/year_chip"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="text"
-                app:closeIconVisible="true" />
+                android:text="1994-2024"
+                app:chipIcon="@drawable/date_range_24px" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/mileage_chip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0-500,000"
+                app:chipIcon="@drawable/speed_24px" />
 
             <!-- Chips can be declared here, or added dynamically. -->
 
