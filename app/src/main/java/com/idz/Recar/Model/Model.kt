@@ -89,29 +89,19 @@ class Model private constructor() {
     }
 
     fun refreshAllUsers() {
-
         usersListLoadingState.value = LoadingState.LOADING
 
-        // 1. Get last local update
-        val lastUpdated: Long = User.lastUpdated
-
-        // 2. Get all updated records from firestore since last update locally
+        // Get all updated records from Firestore since the last update locally
         firebaseModel.getAllUsers() { list ->
-            Log.i("TAG", "Firebase returned ${list.size}, lastUpdated: $lastUpdated")
-            // 3. Insert new record to ROOM
+            Log.i("TAG", "Firebase returned ${list.size} users")
+
+            // Insert or update records in the local database
             executor.execute {
-                var time = lastUpdated
                 for (user in list) {
                     database.userDao().insert(user)
-
-                    user.lastUpdated?.let {
-                        if (time < it)
-                            time = user.lastUpdated ?: System.currentTimeMillis()
-                    }
                 }
 
-                // 4. Update local data
-                User.lastUpdated = time
+                // Update the loading state
                 usersListLoadingState.postValue(LoadingState.LOADED)
             }
         }

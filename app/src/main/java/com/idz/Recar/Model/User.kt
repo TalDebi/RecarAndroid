@@ -1,39 +1,24 @@
 package com.idz.Recar.Model
 
-import android.content.Context
 import android.widget.ImageView
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
-import com.idz.Recar.base.MyApplication
 import com.squareup.picasso.Picasso
 
 @Entity
 data class User(
-    @PrimaryKey var id: String,
+    @PrimaryKey(autoGenerate = false) var id: String = "",
+
     var name: String,
     var email: String,
     var password: String,
     var phoneNumber: String = "",
     var imgUrl: String = DEFAULT_IMAGE_URL,
-    var lastUpdated: Long? = null
+    var lastUpdated: FieldValue? = null // Updated to use Firestore FieldValue
 ) {
     companion object {
         const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
-        var lastUpdated: Long
-            get() {
-                return MyApplication.Globals
-                    .appContext?.getSharedPreferences("TAG", Context.MODE_PRIVATE)
-                    ?.getLong(GET_LAST_UPDATED, 0) ?: 0
-            }
-            set(value) {
-                MyApplication.Globals
-                    ?.appContext
-                    ?.getSharedPreferences("TAG", Context.MODE_PRIVATE)?.edit()
-                    ?.putLong(GET_LAST_UPDATED, value)?.apply()
-            }
-
         const val ID_KEY = "id"
         const val NAME_KEY = "name"
         const val EMAIL_KEY = "email"
@@ -41,7 +26,6 @@ data class User(
         const val PHONE_NUMBER_KEY = "phoneNumber"
         const val IMG_URL_KEY = "imgUrl"
         const val LAST_UPDATED = "lastUpdated"
-        const val GET_LAST_UPDATED = "get_last_updated"
 
         fun fromJSON(json: Map<String, Any>): User {
             val id = json[ID_KEY] as? String ?: ""
@@ -53,13 +37,28 @@ data class User(
 
             val user = User(id, name, email, password, phoneNumber, imgUrl)
 
-            val timestamp: Timestamp? = json[LAST_UPDATED] as? Timestamp
+            // Assuming LAST_UPDATED is provided as a Timestamp
+            val timestamp = json[LAST_UPDATED] as? Long
             timestamp?.let {
-                user.lastUpdated = it.seconds
+                // Convert Long timestamp to Firestore FieldValue
+                user.lastUpdated = FieldValue.serverTimestamp()
             }
 
             return user
         }
+    }
+
+    init {
+        require(name.isNotBlank()) { "Name is required" }
+        require(email.isNotBlank() && email.isValidEmail()) { "Email must be a valid email address" }
+        require(password.length >= 6) { "Password must be at least 6 characters long" }
+        require(phoneNumber.isBlank() || phoneNumber.length == 10) { "Phone number must be 10 digits" }
+    }
+
+    private fun String.isValidEmail(): Boolean {
+        // Simple email validation using regex
+        val emailRegex = Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
+        return matches(emailRegex)
     }
 
     fun loadImageIntoImageView(imageView: ImageView) {
