@@ -3,7 +3,9 @@ package com.idz.Recar.Model
 import android.widget.ImageView
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
 import com.google.firebase.firestore.FieldValue
+import com.idz.Recar.dao.FieldValueConverter
 import com.squareup.picasso.Picasso
 
 @Entity
@@ -15,7 +17,7 @@ data class User(
     var password: String,
     var phoneNumber: String = "",
     var imgUrl: String = DEFAULT_IMAGE_URL,
-    var lastUpdated: FieldValue? = null // Updated to use Firestore FieldValue
+    @TypeConverters(FieldValueConverter::class) var lastUpdated: FieldValue? = null,
 ) {
     companion object {
         const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
