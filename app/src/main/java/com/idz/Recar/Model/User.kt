@@ -51,16 +51,10 @@ data class User(
     }
 
     init {
-        require(name.isNotBlank()) { "Name is required" }
-        require(email.isNotBlank() && email.isValidEmail()) { "Email must be a valid email address" }
-        require(password.length >= 6) { "Password must be at least 6 characters long" }
-        require(phoneNumber.isBlank() || phoneNumber.length == 10) { "Phone number must be 10 digits" }
-    }
-
-    private fun String.isValidEmail(): Boolean {
-        // Simple email validation using regex
-        val emailRegex = Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}")
-        return matches(emailRegex)
+        require(name.length >= 1) { "Name must have at least 1 character" }
+        require(email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) { "Invalid email format" }
+        require(password.length >= 1) { "Password must have at least 1 character" }
+        require(phoneNumber.length == 10) { "Phone number must have 10 digits" }
     }
 
     fun loadImageIntoImageView(imageView: ImageView) {
