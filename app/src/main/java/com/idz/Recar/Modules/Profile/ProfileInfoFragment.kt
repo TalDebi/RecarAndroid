@@ -38,14 +38,14 @@ class ProfileInfoFragment : Fragment() {
 
     private fun setupUI(view: View) {
         // Fetch user details based on the user ID
-//        Model.instance.getUserById(userId).observe(viewLifecycleOwner, Observer { user ->
-//            // Populate the UI with user details
-//            user?.let {
-//                view.findViewById<TextView>(R.id.name).text = it.name
-//                view.findViewById<TextView>(R.id.email).text = it.email
-//                view.findViewById<TextView>(R.id.phoneNumber).text = it.phoneNumber
-//            }
-//        })
+        Model.instance.getUserById(userId).observe(viewLifecycleOwner, Observer { user ->
+            // Populate the UI with user details
+            user?.let {
+                view.findViewById<TextView>(R.id.name).text = it.name
+                view.findViewById<TextView>(R.id.email).text = it.email
+                view.findViewById<TextView>(R.id.phoneNumber).text = it.phoneNumber
+            }
+        })
 
         // Navigate to the profile edit fragment when the edit profile button is clicked
         val editProfileButton: TextView = view.findViewById(R.id.name)

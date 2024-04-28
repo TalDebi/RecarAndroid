@@ -58,10 +58,10 @@ class Register : Fragment() {
 
             // Validate inputs here
 
-            val user = User("", name, email, password, phoneNumber)
-            Model.instance.addUser(user) {
+            val user = User(name, email, password, phoneNumber)
+            Model.instance.addUser(user) { documentId ->
                 // Handle registration completion
-                SharedPreferencesHelper.saveUserId(requireContext(), user.id)
+                SharedPreferencesHelper.saveUserId(requireContext(), documentId)
             }
         }
     }

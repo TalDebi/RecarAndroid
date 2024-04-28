@@ -10,8 +10,6 @@ import com.squareup.picasso.Picasso
 
 @Entity
 data class User(
-    @PrimaryKey(autoGenerate = false) var id: String = "",
-
     var name: String,
     var email: String,
     var password: String,
@@ -21,7 +19,6 @@ data class User(
 ) {
     companion object {
         const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
-        const val ID_KEY = "id"
         const val NAME_KEY = "name"
         const val EMAIL_KEY = "email"
         const val PASSWORD_KEY = "password"
@@ -30,14 +27,13 @@ data class User(
         const val LAST_UPDATED = "lastUpdated"
 
         fun fromJSON(json: Map<String, Any>): User {
-            val id = json[ID_KEY] as? String ?: ""
             val name = json[NAME_KEY] as? String ?: ""
             val email = json[EMAIL_KEY] as? String ?: ""
             val password = json[PASSWORD_KEY] as? String ?: ""
             val phoneNumber = json[PHONE_NUMBER_KEY] as? String ?: ""
             val imgUrl = json[IMG_URL_KEY] as? String ?: DEFAULT_IMAGE_URL // Use default image if imgUrl is not provided
 
-            val user = User(id, name, email, password, phoneNumber, imgUrl)
+            val user = User(name, email, password, phoneNumber, imgUrl)
 
             // Assuming LAST_UPDATED is provided as a Timestamp
             val timestamp = json[LAST_UPDATED] as? Long
@@ -73,7 +69,6 @@ data class User(
     val json: Map<String, Any>
         get() {
             return hashMapOf(
-                ID_KEY to id,
                 NAME_KEY to name,
                 EMAIL_KEY to email,
                 PASSWORD_KEY to password,

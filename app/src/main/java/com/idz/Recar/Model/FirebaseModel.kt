@@ -1,5 +1,7 @@
 package com.idz.Recar.Model
 
+import android.content.ContentValues.TAG
+import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
@@ -47,21 +49,25 @@ class FirebaseModel {
             }
     }
 
-    fun getAllUsers(callback: (List<User>) -> Unit) {
+    fun getAllUsers(callback: (List<Pair<User, String>>) -> Unit) {
         db.collection(USERS_COLLECTION_PATH)
             .addSnapshotListener { snapshot, exception ->
                 if (exception != null) {
+                    Log.e(TAG, "Error getting users: ", exception)
                     callback(emptyList())
                     return@addSnapshotListener
                 }
 
                 if (snapshot != null && !snapshot.isEmpty) {
-                    val users: MutableList<User> = mutableListOf()
+                    val usersWithIds = mutableListOf<Pair<User, String>>()
                     for (doc in snapshot.documents) {
                         val user = doc.data?.let { User.fromJSON(it) }
-                        user?.let { users.add(it) }
+                        val id = doc.id
+                        if (user != null) {
+                            usersWithIds.add(Pair(user, id))
+                        }
                     }
-                    callback(users)
+                    callback(usersWithIds)
                 } else {
                     callback(emptyList())
                 }
@@ -77,12 +83,17 @@ class FirebaseModel {
             }
     }
 
-    fun addUser(user: User, callback: () -> Unit) {
+    fun addUser(user: User, callback: (String) -> Unit) {
         db.collection(USERS_COLLECTION_PATH)
-            .document(user.id ?: "")
-            .set(user.json)
-            .addOnSuccessListener {
-                callback()
+            .add(user.json) // Omitting the document ID
+            .addOnSuccessListener { documentReference ->
+                // Document successfully added with generated ID
+                val generatedId = documentReference.id
+                callback(generatedId)
+            }
+            .addOnFailureListener { e ->
+                // Handle errors here
+                Log.e(TAG, "Error adding document", e)
             }
     }
 }
