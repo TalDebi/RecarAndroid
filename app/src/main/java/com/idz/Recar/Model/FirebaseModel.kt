@@ -96,5 +96,18 @@ class FirebaseModel {
                 Log.e(TAG, "Error adding document", e)
             }
     }
+
+    fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
+        db.collection(USERS_COLLECTION_PATH)
+            .document(userId)
+            .set(newUser.json) // Overwrites the existing document with the new user data
+            .addOnSuccessListener {
+                callback()
+            }
+            .addOnFailureListener { e ->
+                // Handle errors here
+                Log.e(TAG, "Error editing user document", e)
+            }
+    }
 }
 

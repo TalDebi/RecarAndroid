@@ -108,7 +108,7 @@ class Model private constructor() {
                         imgUrl = user.imgUrl,
                         lastUpdated = user.lastUpdated
                     )
-                        database.userDao().insert(localUser)
+                    database.userDao().insert(localUser)
                 }
 
                 // Update the loading state
@@ -130,4 +130,12 @@ class Model private constructor() {
             callback(documentId)
         }
     }
+
+    fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
+        firebaseModel.editUserById(userId, newUser) {
+            refreshAllUsers()
+            callback()
+        }
+    }
+
 }
