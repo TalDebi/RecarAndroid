@@ -10,10 +10,9 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
-import com.idz.Recar.Model.Model
-import com.idz.Recar.Model.User
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
+import com.idz.Recar.dao.AppLocalDatabase
 
 class ProfileInfoFragment : Fragment() {
 
@@ -37,8 +36,10 @@ class ProfileInfoFragment : Fragment() {
     }
 
     private fun setupUI(view: View) {
+        val userDao = AppLocalDatabase.db.userDao()
+
         // Fetch user details based on the user ID
-        Model.instance.getUserById(userId).observe(viewLifecycleOwner, Observer { user ->
+        userDao.getUserById(userId).observe(viewLifecycleOwner, Observer { user ->
             // Populate the UI with user details
             user?.let {
                 view.findViewById<TextView>(R.id.name).text = it.name
