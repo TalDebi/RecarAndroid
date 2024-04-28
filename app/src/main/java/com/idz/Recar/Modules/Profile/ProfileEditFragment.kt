@@ -11,12 +11,18 @@
     import androidx.activity.result.contract.ActivityResultContracts
     import androidx.fragment.app.Fragment
     import com.google.android.material.imageview.ShapeableImageView
+    import com.idz.Recar.Model.Model
     import com.idz.Recar.R
+    import com.idz.Recar.Utils.SharedPreferencesHelper
+    import com.idz.Recar.dao.AppLocalDatabase
+    import com.idz.Recar.Model.User
     import com.squareup.picasso.Callback
     import com.squareup.picasso.Picasso
+    import androidx.navigation.fragment.findNavController
+
+    const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
     class ProfileEditFragment : Fragment() {
-
         private lateinit var nameEditText: EditText
         private lateinit var emailEditText: EditText
         private lateinit var phoneNumberEditText: EditText
@@ -25,6 +31,14 @@
         private lateinit var submitButton: Button
         private var imageView: ShapeableImageView? = null
         private var imageUri: String? = null
+        private lateinit var userId: String
+
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+            setHasOptionsMenu(true)
+            // Retrieve the user ID from SharedPreferences
+            userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
+        }
 
         override fun onCreateView(
             inflater: LayoutInflater, container: ViewGroup?,
@@ -44,6 +58,15 @@
             confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
             submitButton = view.findViewById(R.id.submitButton)
             imageView = view.findViewById(R.id.imageView)
+            val userDao = AppLocalDatabase.db.userDao()
+
+            userDao.getUserById(userId).observe(viewLifecycleOwner, { user ->
+                user?.let {
+                    nameEditText.setText(it.name)
+                    emailEditText.setText(it.email)
+                    phoneNumberEditText.setText(it.phoneNumber)
+                }
+            })
 
             editImageButton.setOnClickListener {
                 openImagePicker.launch("image/*")
@@ -55,14 +78,20 @@
                     val email = emailEditText.text.toString()
                     val phoneNumber = phoneNumberEditText.text.toString()
                     val password = passwordEditText.text.toString()
-                    val confirmPassword = confirmPasswordEditText.text.toString()
 
-                    println("Name: $name")
-                    println("Email: $email")
-                    println("Phone Number: $phoneNumber")
-                    println("Password: $password")
-                    println("Confirm Password: $confirmPassword")
-                    println("Image URI: $imageUri")
+                    val modefiedUser = User(
+                        name = name,
+                        email = email,
+                        password = password,
+                        phoneNumber = phoneNumber,
+                        imgUrl = imageUri ?: DEFAULT_IMAGE_URL
+                        )
+
+                    Model.instance.editUserById(userId, modefiedUser) {
+                        Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
+
+                        findNavController().popBackStack()
+                    }
                 }
             }
         }

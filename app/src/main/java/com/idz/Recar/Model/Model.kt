@@ -9,6 +9,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.idz.Recar.dao.AppLocalDatabase
 import java.util.concurrent.Executors
+import com.idz.Recar.dao.User as LocalUser
 
 class Model private constructor() {
 
@@ -23,7 +24,7 @@ class Model private constructor() {
     private val firebaseModel = FirebaseModel()
     private val students: LiveData<MutableList<Student>>? = null
     val studentsListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
-    private val usersList: LiveData<MutableList<User>> = database.userDao().getAll()
+    private val usersList: LiveData<MutableList<LocalUser>> = database.userDao().getAll()
     val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
 
     companion object {
@@ -34,7 +35,7 @@ class Model private constructor() {
         students?.observe(owner, observer)
     }
 
-    fun observeUsersList(owner: LifecycleOwner, observer: (List<User>) -> Unit) {
+    fun observeUsersList(owner: LifecycleOwner, observer: (List<LocalUser>) -> Unit) {
         usersList.observe(owner, observer)
     }
 
@@ -54,7 +55,7 @@ class Model private constructor() {
         return students ?: database.studentDao().getAll()
     }
 
-    fun getAllUsers(): LiveData<MutableList<User>> {
+    fun getAllUsers(): LiveData<MutableList<LocalUser>> {
         refreshAllUsers()
         return usersList
     }
@@ -89,29 +90,28 @@ class Model private constructor() {
     }
 
     fun refreshAllUsers() {
-
         usersListLoadingState.value = LoadingState.LOADING
 
-        // 1. Get last local update
-        val lastUpdated: Long = User.lastUpdated
-
-        // 2. Get all updated records from firestore since last update locally
+        // Get all updated records from Firestore since the last update locally
         firebaseModel.getAllUsers() { list ->
-            Log.i("TAG", "Firebase returned ${list.size}, lastUpdated: $lastUpdated")
-            // 3. Insert new record to ROOM
-            executor.execute {
-                var time = lastUpdated
-                for (user in list) {
-                    database.userDao().insert(user)
+            Log.i("TAG", "Firebase returned ${list.size} users")
 
-                    user.lastUpdated?.let {
-                        if (time < it)
-                            time = user.lastUpdated ?: System.currentTimeMillis()
-                    }
+            // Insert or update records in the local database
+            executor.execute {
+                list.forEach { (user, id) ->
+                    val localUser = LocalUser(
+                        id = id,
+                        name = user.name,
+                        email = user.email,
+                        password = user.password,
+                        phoneNumber = user.phoneNumber,
+                        imgUrl = user.imgUrl,
+                        lastUpdated = user.lastUpdated
+                    )
+                    database.userDao().insert(localUser)
                 }
 
-                // 4. Update local data
-                User.lastUpdated = time
+                // Update the loading state
                 usersListLoadingState.postValue(LoadingState.LOADED)
             }
         }
@@ -124,10 +124,18 @@ class Model private constructor() {
         }
     }
 
-    fun addUser(user: User, callback: () -> Unit) {
-        firebaseModel.addUser(user) {
+    fun addUser(user: User, callback: (String) -> Unit) {
+        firebaseModel.addUser(user) { documentId ->
+            refreshAllUsers()
+            callback(documentId)
+        }
+    }
+
+    fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
+        firebaseModel.editUserById(userId, newUser) {
             refreshAllUsers()
             callback()
         }
     }
+
 }
