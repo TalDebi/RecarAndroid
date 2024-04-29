@@ -32,6 +32,7 @@ import com.idz.Recar.Modules.Students.Adapter.CarResultRecyclerAdapter
 import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
 import com.idz.Recar.Modules.Search.Adapter.CarResultRecyclerViewActivity
+import com.idz.Recar.base.VollyQueue
 
 
 class SearchFragment : Fragment() {
@@ -221,7 +222,7 @@ class SearchFragment : Fragment() {
         )
 
 
-        Volley.newRequestQueue(this.context).add(jsonObjectRequest)
+        this.context?.let { VollyQueue.getInstance(it).addToRequestQueue((jsonObjectRequest)) }
     }
 
 //    fun setResultList(
