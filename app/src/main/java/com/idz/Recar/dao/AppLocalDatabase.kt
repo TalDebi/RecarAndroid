@@ -9,13 +9,16 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.idz.Recar.Model.Car
 import com.idz.Recar.Model.Student
+import com.idz.Recar.dao.User
 import com.idz.Recar.base.MyApplication
 
-@Database(entities = [Student::class, Car::class], version = 3)
+@Database(entities = [Student::class, Car::class,User::class], version = 5)
 @TypeConverters(Converters::class)
+@TypeConverters(FieldValueConverter::class)
 abstract class AppLocalDbRepository : RoomDatabase() {
     abstract fun studentDao(): StudentDao
     abstract fun carDao(): CarDao
+    abstract fun userDao(): UserDao
 }
 
 object AppLocalDatabase {

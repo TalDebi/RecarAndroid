@@ -1,4 +1,5 @@
 package com.idz.Recar.Modules.Profile
+
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -6,27 +7,23 @@ import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
-import android.widget.EditText
-import android.widget.ImageButton
 import android.widget.TextView
+import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
-import com.idz.Recar.Model.Model
-import com.idz.Recar.Model.Student
-import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
+import com.idz.Recar.Utils.SharedPreferencesHelper
+import com.idz.Recar.dao.AppLocalDatabase
 
 class ProfileInfoFragment : Fragment() {
 
-    private var nameTextField: EditText? = null
-    private var idTextField: EditText? = null
-    private var messageTextView: TextView? = null
-    private var saveButton: Button? = null
-    private var cancelButton: Button? = null
+    private lateinit var userId: String // User ID to load user details
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+
+        // Retrieve the user ID from SharedPreferences
+        userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
     }
 
     override fun onCreateView(
@@ -34,34 +31,27 @@ class ProfileInfoFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_profile_info, container, false)
-        val editProfileButton: TextView = view.findViewById(R.id.name)
-        val action = Navigation.createNavigateOnClickListener(ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment())
-        editProfileButton.setOnClickListener(action)
         setupUI(view)
         return view
     }
 
     private fun setupUI(view: View) {
-//        nameTextField = view.findViewById(R.id.etAddStudentName)
-//        idTextField = view.findViewById(R.id.etAddStudentID)
-//        messageTextView = view.findViewById(R.id.tvAddStudentSaved)
-//        saveButton = view.findViewById(R.id.btnAddStudentSave)
-//        cancelButton = view.findViewById(R.id.btnAddStudentCancel)
-//        messageTextView?.text = ""
-//
-//        cancelButton?.setOnClickListener {
-//            Navigation.findNavController(it).popBackStack(R.id.studentsFragment, false)
-//        }
-//
-//        saveButton?.setOnClickListener {
-//            val name = nameTextField?.text.toString()
-//            val id = idTextField?.text.toString()
-//
-//            val student = Student(name, id, "", false)
-//            Model.instance.addStudent(student) {
-//                Navigation.findNavController(it).popBackStack(R.id.studentsFragment, false)
-//            }
-//        }
+        val userDao = AppLocalDatabase.db.userDao()
+
+        // Fetch user details based on the user ID
+        userDao.getUserById(userId).observe(viewLifecycleOwner, Observer { user ->
+            // Populate the UI with user details
+            user?.let {
+                view.findViewById<TextView>(R.id.name).text = it.name
+                view.findViewById<TextView>(R.id.email).text = it.email
+                view.findViewById<TextView>(R.id.phoneNumber).text = it.phoneNumber
+            }
+        })
+
+        // Navigate to the profile edit fragment when the edit profile button is clicked
+        val editProfileButton: TextView = view.findViewById(R.id.name)
+        val action = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
+        editProfileButton.setOnClickListener { Navigation.findNavController(view).navigate(action) }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

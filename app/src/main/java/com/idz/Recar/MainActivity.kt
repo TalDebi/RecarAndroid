@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -23,18 +24,36 @@ class MainActivity : AppCompatActivity() {
 
         val navHostFragment: NavHostFragment? =
             supportFragmentManager.findFragmentById(R.id.navHostMain) as? NavHostFragment
-        navController = navHostFragment?.navController
-//        navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
 
+        navController = navHostFragment?.navController
+
+        navController?.navigate(R.id.loginFragment)
+
+        navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
+
+        navController?.navigate(R.id.loginFragment)
         val bottomNavigationView: BottomNavigationView =
             findViewById(R.id.mainActivityBottomNavigationView)
+        navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
 
-        navController?.let { bottomNavigationView.setupWithNavController(it) }
+        navController?.addOnDestinationChangedListener { _, destination, _ ->
+            if (destination.id == R.id.loginFragment || destination.id == R.id.registerFragment) {
+                bottomNavigationView.visibility = View.GONE
+            } else {
+                bottomNavigationView.visibility = View.VISIBLE
+            }
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         super.onCreateOptionsMenu(menu)
-        menuInflater.inflate(R.menu.menu, menu)
+        Log.d("MainActivity", "onCreateOptionsMenu called")
+        val currentDestination = navController?.currentDestination
+        val isLoginFragment = currentDestination?.id == R.id.loginFragment
+        Log.d("MainActivity", "Is Login Fragment: $isLoginFragment")
+        if (!isLoginFragment) {
+            menuInflater.inflate(R.menu.menu, menu)
+        }
         return true
     }
 
