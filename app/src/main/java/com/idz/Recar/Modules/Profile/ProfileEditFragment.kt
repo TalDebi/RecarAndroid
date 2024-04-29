@@ -49,6 +49,48 @@
             return view
         }
 
+        private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+            uri?.let {
+                println("Selected image URI: $imageView")
+                imageView?.let {
+                    Picasso.get()
+                        .load(uri)
+                        .into(it)
+                }
+                imageUri = uri.toString()
+            }
+        }
+
+        private fun validateForm(): Boolean {
+            val name = nameEditText.text.toString()
+            val email = emailEditText.text.toString()
+            val phoneNumber = phoneNumberEditText.text.toString()
+            val password = passwordEditText.text.toString()
+            val confirmPassword = confirmPasswordEditText.text.toString()
+
+            if (name.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+                Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            if (phoneNumber.length != 10) {
+                Toast.makeText(requireContext(), "Phone number must have 10 digits", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            if (!email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) {
+                Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            if (password != confirmPassword) {
+                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            return true
+        }
+
         private fun setupUI(view: View) {
             val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
             nameEditText = view.findViewById(R.id.nameEditText)
@@ -94,37 +136,5 @@
                     }
                 }
             }
-        }
-
-        private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-            uri?.let {
-                println("Selected image URI: $imageView")
-                imageView?.let {
-                    Picasso.get()
-                        .load(uri)
-                        .into(it)
-                }
-                imageUri = uri.toString()
-            }
-        }
-
-        private fun validateForm(): Boolean {
-            val name = nameEditText.text.toString()
-            val email = emailEditText.text.toString()
-            val phoneNumber = phoneNumberEditText.text.toString()
-            val password = passwordEditText.text.toString()
-            val confirmPassword = confirmPasswordEditText.text.toString()
-
-            if (name.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
-                return false
-            }
-
-            if (password != confirmPassword) {
-                Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
-                return false
-            }
-
-            return true
         }
     }

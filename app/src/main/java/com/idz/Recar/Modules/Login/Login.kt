@@ -28,7 +28,7 @@ class Login : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_login, container, false)
-        val signupLink: TextView = view.findViewById(R.id.signupTextView)
+        val signupLink: TextView = view.findViewById(R.id.signupLink)
         var action = Navigation.createNavigateOnClickListener(LoginDirections.actionLoginFragmentToRegisterFragment())
         signupLink.setOnClickListener(action)
         val loginButton: TextView = view.findViewById(R.id.loginButton)

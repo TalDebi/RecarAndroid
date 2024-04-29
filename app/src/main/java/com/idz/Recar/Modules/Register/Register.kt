@@ -11,6 +11,8 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
+import android.widget.Toast
+import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.Student
@@ -21,6 +23,13 @@ import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 
 class Register : Fragment() {
+    private lateinit var nameEditText: EditText
+    private lateinit var emailEditText: EditText
+    private lateinit var phoneNumberEditText: EditText
+    private lateinit var passwordEditText: EditText
+    private lateinit var confirmPasswordEditText: EditText
+    val navController = Navigation.findNavController(requireView())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -31,37 +40,63 @@ class Register : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_register, container, false)
-        val loginLink: TextView = view.findViewById(R.id.loginRedirectTextView)
+        val loginLink: TextView = view.findViewById(R.id.loginLink)
         var action = Navigation.createNavigateOnClickListener(RegisterDirections.actionRegisterFragmentToLoginFragment())
         loginLink.setOnClickListener(action)
-        val registerButton: TextView = view.findViewById(R.id.registerButton)
-        action = Navigation.createNavigateOnClickListener(LoginDirections.actionRegisterFragmentToStudentsFragment())
-        registerButton.setOnClickListener(action)
         setupUI(view)
         return view
     }
 
+    private fun validateForm(): Boolean {
+        val name = nameEditText.text.toString()
+        val email = emailEditText.text.toString()
+        val phoneNumber = phoneNumberEditText.text.toString()
+        val password = passwordEditText.text.toString()
+        val confirmPassword = confirmPasswordEditText.text.toString()
+
+        if (name.isEmpty() || email.isEmpty() || phoneNumber.isEmpty() || password.isEmpty() || confirmPassword.isEmpty()) {
+            Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (phoneNumber.length != 10) {
+            Toast.makeText(requireContext(), "Phone number must have 10 digits", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (!email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) {
+            Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (password != confirmPassword) {
+            Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        return true
+    }
+
     private fun setupUI(view: View) {
-        val nameEditText: EditText = view.findViewById(R.id.nameEditText)
-        val emailEditText: EditText = view.findViewById(R.id.emailEditText)
-        val phoneNumberEditText: EditText = view.findViewById(R.id.phoneNumberEditText)
-        val passwordEditText: EditText = view.findViewById(R.id.passwordEditText)
-        val confirmPasswordEditText: EditText = view.findViewById(R.id.confirmPasswordEditText)
+        nameEditText = view.findViewById(R.id.nameEditText)
+        emailEditText = view.findViewById(R.id.emailEditText)
+        phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText)
+        passwordEditText = view.findViewById(R.id.passwordEditText)
+        confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
         val registerButton: Button = view.findViewById(R.id.registerButton)
 
         registerButton.setOnClickListener {
-            val name = nameEditText.text.toString()
-            val email = emailEditText.text.toString()
-            val phoneNumber = phoneNumberEditText.text.toString()
-            val password = passwordEditText.text.toString()
-            val confirmPassword = confirmPasswordEditText.text.toString()
+            if (validateForm()) {
+                val name = nameEditText.text.toString()
+                val email = emailEditText.text.toString()
+                val phoneNumber = phoneNumberEditText.text.toString()
+                val password = passwordEditText.text.toString()
 
-            // Validate inputs here
-
-            val user = User(name, email, password, phoneNumber)
-            Model.instance.addUser(user) { documentId ->
-                // Handle registration completion
-                SharedPreferencesHelper.saveUserId(requireContext(), documentId)
+                val user = User(name, email, password, phoneNumber)
+                Model.instance.addUser(user) { documentId ->
+                    SharedPreferencesHelper.saveUserId(requireContext(), documentId)
+                    navController.navigate(LoginDirections.actionRegisterFragmentToStudentsFragment())
+                }
             }
         }
     }
