@@ -23,10 +23,14 @@ class Model private constructor() {
     private var mainHandler = HandlerCompat.createAsync(Looper.getMainLooper())
     private val firebaseModel = FirebaseModel()
     private val students: LiveData<MutableList<Student>>? = null
-    private val results : LiveData<MutableList<Car>>? = null
-    val studentsListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
+    private val results: LiveData<MutableList<Car>>? = null
+    val resultsLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
+    val studentsListLoadingState: MutableLiveData<LoadingState> =
+        MutableLiveData(LoadingState.LOADED)
     private val usersList: LiveData<MutableList<LocalUser>> = database.userDao().getAll()
     val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
+    private val currCar: LiveData<Car>? = null
+    val currCarLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
 
     companion object {
         val instance: Model = Model()
@@ -39,6 +43,9 @@ class Model private constructor() {
     fun observeUsersList(owner: LifecycleOwner, observer: (List<LocalUser>) -> Unit) {
         usersList.observe(owner, observer)
     }
+    fun obserfeCurrCar(owner: LifecycleOwner, observer: (Car) -> Unit) {
+        currCar?.observe(owner, observer)
+    }
 
     fun removeStudentsListObservers(owner: LifecycleOwner) {
         students?.removeObservers(owner)
@@ -47,16 +54,25 @@ class Model private constructor() {
     fun removeUsersListObservers(owner: LifecycleOwner) {
         usersList.removeObservers(owner)
     }
+
     interface GetAllStudentsListener {
         fun onComplete(students: List<Student>)
     }
+
 
     fun getAllStudents(): LiveData<MutableList<Student>> {
         refreshAllStudents()
         return students ?: database.studentDao().getAll()
     }
+
     fun getAllCars(): LiveData<MutableList<Car>> {
         return results ?: database.carDao().getAll()
+    }
+
+    fun getCarById(id: String): LiveData<Car> {
+        refreshCurrCar(id)
+        return currCar ?: database.carDao().getCarById(id)
+
     }
 
     fun getAllUsers(): LiveData<MutableList<LocalUser>> {
@@ -113,6 +129,28 @@ class Model private constructor() {
                         lastUpdated = user.lastUpdated
                     )
                     database.userDao().insert(localUser)
+                }
+
+                // Update the loading state
+                usersListLoadingState.postValue(LoadingState.LOADED)
+            }
+        }
+    }
+
+    fun refreshCurrCar(id: String) {
+        usersListLoadingState.value = LoadingState.LOADING
+
+        // Get all updated records from Firestore since the last update locally
+        firebaseModel.getCarById(id) { car ->
+            Log.i("TAG", "Firebase returned 1 car")
+            car?.let {
+                // Insert or update records in the local database
+                executor.execute {
+                    val temp = car.toMutableMap()
+                    temp.put(Car.ID_KEY, id)
+                    val localCar = Car.fromJSON(temp)
+
+                    database.carDao().insert(localCar)
                 }
 
                 // Update the loading state

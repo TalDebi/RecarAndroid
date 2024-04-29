@@ -3,6 +3,8 @@ package com.idz.Recar.dao
 import androidx.room.TypeConverter
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.FieldValue
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class FieldValueConverter {
     @TypeConverter
@@ -19,6 +21,20 @@ class FieldValueConverter {
         // Convert milliseconds to FieldValue (not supported)
         // You may need additional logic here based on your requirements
         return null
+    }
+    @TypeConverter
+    fun fromStringList(value: ArrayList<String>): String {
+        val gson = Gson()
+        val type = object : TypeToken<ArrayList<String>>() {}.type
+        val a = gson.toJson(value, type)
+        return a
+    }
+
+    @TypeConverter
+    fun toStringList(value: String): ArrayList<String> {
+        val gson = Gson()
+        val type = object : TypeToken<ArrayList<String>>() {}.type
+        return gson.fromJson(value, type)
     }
 }
 

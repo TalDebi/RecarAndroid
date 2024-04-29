@@ -72,6 +72,20 @@ class FirebaseModel {
         }
     }
 
+    fun getCarById(id: String, callback: (Map<String,Any>?) -> Unit) {
+        val query = db.collection(CARS_COLLECTION_PATH).document(id)
+        query.get().addOnCompleteListener {
+            when (it.isSuccessful) {
+                true -> {
+
+                    callback(it.result.data)
+                }
+
+                false -> callback(null)
+            }
+        }
+    }
+
     fun getAllStudents(since: Long, callback: (List<Student>) -> Unit) {
         db.collection(STUDENTS_COLLECTION_PATH)
             .whereGreaterThanOrEqualTo(Student.LAST_UPDATED, Timestamp(since, 0))

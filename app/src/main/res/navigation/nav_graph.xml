@@ -70,4 +70,8 @@
         android:id="@+id/searchFragment"
         android:name="com.idz.Recar.Modules.Search.SearchFragment"
         android:label="SearchFragment" />
+    <fragment
+        android:id="@+id/currCarFragment"
+        android:name="com.idz.Recar.Modules.Car.Car"
+        android:label="CarFragment" />
 </navigation>
