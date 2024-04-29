@@ -31,12 +31,13 @@
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="0dp"
         android:layout_height="48dp"
-        android:layout_marginStart="30dp"
+        android:layout_marginStart="36dp"
         android:layout_marginBottom="12dp"
         android:text="Filters"
         app:icon="@drawable/filter_alt_24px"
         app:layout_constraintBottom_toTopOf="@+id/listView"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
     <HorizontalScrollView
         android:layout_width="0dp"
@@ -99,13 +100,12 @@
                 android:text="0-500,000"
                 app:chipIcon="@drawable/speed_24px" />
 
-            <!-- Chips can be declared here, or added dynamically. -->
 
         </com.google.android.material.chip.ChipGroup>
     </HorizontalScrollView>
 
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/result_list"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginTop="72dp"

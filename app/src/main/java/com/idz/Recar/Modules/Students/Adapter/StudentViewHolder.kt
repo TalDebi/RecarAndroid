@@ -6,7 +6,6 @@ import android.widget.CheckBox
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.idz.Recar.Model.Student
-import com.idz.Recar.Modules.Students.CarResultRcyclerViewActivity
 import com.idz.Recar.Modules.Students.StudentsRcyclerViewActivity
 import com.idz.Recar.R
 

@@ -1,18 +1,19 @@
-package com.idz.Recar.Modules.Students
+package com.idz.Recar.Modules.Search.Adapter
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.idz.Recar.Model.Car
 import com.idz.Recar.Model.Student
 import com.idz.Recar.Modules.Students.Adapter.CarResultRecyclerAdapter
 import com.idz.Recar.databinding.ActivityStudentsRcyclerViewBinding
 
-class CarResultRcyclerViewActivity : AppCompatActivity() {
+class CarResultRecyclerViewActivity : AppCompatActivity() {
 
     var studentsRcyclerView: RecyclerView? = null
-    var students: List<Student>? = null
+    var results: MutableList<Car>? = null
     var adapter: CarResultRecyclerAdapter? = null
 
     private lateinit var binding: ActivityStudentsRcyclerViewBinding
@@ -27,15 +28,15 @@ class CarResultRcyclerViewActivity : AppCompatActivity() {
         studentsRcyclerView?.setHasFixedSize(true)
         studentsRcyclerView?.layoutManager = LinearLayoutManager(this)
 
-        adapter = CarResultRecyclerAdapter(students)
+        adapter = CarResultRecyclerAdapter(results)
         adapter?.listener = object : OnItemClickListener {
 
             override fun onItemClick(position: Int) {
                 Log.i("TAG", "StudentsRecyclerAdapter: Position clicked $position")
             }
 
-            override fun onCarClicked(student: Student?) {
-                Log.i("TAG", "STUDENT $student")
+            override fun onCarClicked(result: Car?) {
+                Log.i("TAG", "STUDENT $result")
             }
         }
 
@@ -44,7 +45,7 @@ class CarResultRcyclerViewActivity : AppCompatActivity() {
 
     interface OnItemClickListener {
         fun onItemClick(position: Int) // Student
-        fun onCarClicked(student: Student?)
+        fun onCarClicked(result: Car?)
     }
 
     override fun onResume() {

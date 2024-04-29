@@ -21,6 +21,7 @@ class Model private constructor() {
     private var mainHandler = HandlerCompat.createAsync(Looper.getMainLooper())
     private val firebaseModel = FirebaseModel()
     private val students: LiveData<MutableList<Student>>? = null
+    private val results : LiveData<MutableList<Car>>? = null
     val studentsListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
 
     companion object {
@@ -34,6 +35,9 @@ class Model private constructor() {
     fun getAllStudents(): LiveData<MutableList<Student>> {
         refreshAllStudents()
         return students ?: database.studentDao().getAll()
+    }
+    fun getAllCars(): LiveData<MutableList<Car>> {
+        return results ?: database.carDao().getAll()
     }
 
     fun refreshAllStudents() {

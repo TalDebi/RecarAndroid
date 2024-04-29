@@ -3,14 +3,21 @@ package com.idz.Recar.Modules.Search
 import android.icu.text.NumberFormat
 import android.icu.util.Currency
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Button
+import android.widget.ImageButton
+import android.widget.ProgressBar
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
@@ -18,11 +25,21 @@ import com.google.android.material.chip.Chip
 import com.google.android.material.sidesheet.SideSheetDialog
 import com.google.android.material.slider.RangeSlider
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
+import com.idz.Recar.Model.Car
+import com.idz.Recar.Model.Model
+import com.idz.Recar.Model.Student
+import com.idz.Recar.Modules.Students.Adapter.CarResultRecyclerAdapter
+import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
+import com.idz.Recar.Modules.Search.Adapter.CarResultRecyclerViewActivity
 
 
 class SearchFragment : Fragment() {
 
+    var resultsRecyclerView: RecyclerView? = null
+    var adapter: CarResultRecyclerAdapter? = null
+    var progressBar: ProgressBar? = null
+    private lateinit var viewModel: ResultsViewModel
 
     private var filtersButton: Button? = null
     private var filterSheet: SideSheetDialog? = null
@@ -177,6 +194,7 @@ class SearchFragment : Fragment() {
         setupUI(view)
         getOptions("make", makeSelect)
         getOptions("model", modelSelect)
+//        setResultList(inflater, container, savedInstanceState, view)
 
         return view
     }
@@ -198,8 +216,7 @@ class SearchFragment : Fragment() {
 
 
             },
-            { error ->
-                // TODO: Handle error
+            { _ ->
             }
         )
 
@@ -207,9 +224,55 @@ class SearchFragment : Fragment() {
         Volley.newRequestQueue(this.context).add(jsonObjectRequest)
     }
 
-    fun sliderChangeCallback(slider: RangeSlider, value: Float) {
-        println(value)
-    }
+//    fun setResultList(
+//        inflater: LayoutInflater, container: ViewGroup?,
+//        savedInstanceState: Bundle?, view: View
+//    ) {
+//
+//
+//        viewModel = ViewModelProvider(this)[ResultsViewModel::class.java]
+//
+//
+//        progressBar?.visibility = View.VISIBLE
+//
+//        viewModel.results = Model.instance.getAllCars()
+//
+//        resultsRecyclerView = view.findViewById(R.id.result_list)
+//        resultsRecyclerView?.setHasFixedSize(true)
+//        resultsRecyclerView?.layoutManager = LinearLayoutManager(context)
+//        adapter = CarResultRecyclerAdapter(viewModel.results?.value)
+//        adapter?.listener = object : CarResultRecyclerViewActivity.OnItemClickListener {
+//
+//            override fun onItemClick(position: Int) {
+//                Log.i("TAG", "StudentsRecyclerAdapter: Position clicked $position")
+//                val student = viewModel.results?.value?.get(position)
+//                student?.let {
+//                    val action =
+//                        StudentsFragmentDirections.actionStudentsFragmentToBlueFragment(it.id)
+//                    Navigation.findNavController(view).navigate(action)
+//                }
+//            }
+//
+//            override fun onCarClicked(result: Car?) {
+//                TODO("Not yet implemented")
+//            }
+//        }
+//
+//        resultsRecyclerView?.adapter = adapter
+//
+//        val addStudentButton: ImageButton = view.findViewById(R.id.ibtnStudentsFragmentAddStudent)
+//        val action =
+//            Navigation.createNavigateOnClickListener(StudentsFragmentDirections.actionGlobalAddStudentFragment())
+//        addStudentButton.setOnClickListener(action)
+//
+//        viewModel.results?.observe(viewLifecycleOwner) {
+//            adapter?.results = it
+//            adapter?.notifyDataSetChanged()
+//            progressBar?.visibility = View.GONE
+//        }
+//
+//
+//    }
 
 
 }
