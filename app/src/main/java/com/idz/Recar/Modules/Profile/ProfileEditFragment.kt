@@ -51,7 +51,7 @@
 
         private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
-                println("Selected image URI: $imageView")
+                println("Selected image URI: $uri")
                 imageView?.let {
                     Picasso.get()
                         .load(uri)

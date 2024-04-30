@@ -12,8 +12,10 @@ import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.TextView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.google.android.material.imageview.ShapeableImageView
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.Student
 import com.idz.Recar.Model.User
@@ -21,6 +23,9 @@ import com.idz.Recar.Modules.Login.LoginDirections
 import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
+import com.squareup.picasso.Picasso
+
+const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
 class Register : Fragment() {
     private lateinit var nameEditText: EditText
@@ -28,11 +33,25 @@ class Register : Fragment() {
     private lateinit var phoneNumberEditText: EditText
     private lateinit var passwordEditText: EditText
     private lateinit var confirmPasswordEditText: EditText
-    val navController = Navigation.findNavController(requireView())
+    private val navController by lazy { Navigation.findNavController(requireView()) }
+    private var profileImage: ShapeableImageView? = null
+    private var imageUri: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+    }
+
+    private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            println("Selected image URI: $uri")
+            profileImage?.let {
+                Picasso.get()
+                    .load(uri)
+                    .into(it)
+            }
+            imageUri = uri.toString()
+        }
     }
 
     override fun onCreateView(
@@ -41,7 +60,7 @@ class Register : Fragment() {
     ): View? {
         val view = inflater.inflate(R.layout.fragment_register, container, false)
         val loginLink: TextView = view.findViewById(R.id.loginLink)
-        var action = Navigation.createNavigateOnClickListener(RegisterDirections.actionRegisterFragmentToLoginFragment())
+        val action = Navigation.createNavigateOnClickListener(RegisterDirections.actionRegisterFragmentToLoginFragment())
         loginLink.setOnClickListener(action)
         setupUI(view)
         return view
@@ -78,12 +97,17 @@ class Register : Fragment() {
     }
 
     private fun setupUI(view: View) {
+        val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
         nameEditText = view.findViewById(R.id.nameEditText)
         emailEditText = view.findViewById(R.id.emailEditText)
         phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText)
         passwordEditText = view.findViewById(R.id.passwordEditText)
         confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
         val registerButton: Button = view.findViewById(R.id.registerButton)
+
+        editImageButton.setOnClickListener {
+            openImagePicker.launch("image/*")
+        }
 
         registerButton.setOnClickListener {
             if (validateForm()) {
@@ -92,7 +116,7 @@ class Register : Fragment() {
                 val phoneNumber = phoneNumberEditText.text.toString()
                 val password = passwordEditText.text.toString()
 
-                val user = User(name, email, password, phoneNumber)
+                val user = User(name, email, password, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
                 Model.instance.addUser(user) { documentId ->
                     SharedPreferencesHelper.saveUserId(requireContext(), documentId)
                     navController.navigate(LoginDirections.actionRegisterFragmentToStudentsFragment())
