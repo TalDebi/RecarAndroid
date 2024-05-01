@@ -21,6 +21,7 @@
     import com.google.firebase.auth.FirebaseAuth
     import com.idz.Recar.dao.User as LocalUser
     import com.idz.Recar.Model.User
+    import java.util.concurrent.CompletableFuture
 
     const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
@@ -65,9 +66,17 @@
             }
         }
 
-        private fun isEmailTaken(email: String): Boolean {
-            val signInMethods = auth.fetchSignInMethodsForEmail(email).getResult()?.signInMethods ?: emptyList()
-            return signInMethods.isNotEmpty()
+        private fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
+            auth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val result = task.result
+                        val signInMethods = result?.signInMethods ?: emptyList()
+                        onComplete(signInMethods.isNotEmpty())
+                    } else {
+                        onComplete(false)
+                    }
+                }
         }
 
         private fun validateForm(): Boolean {
@@ -97,17 +106,107 @@
                 return false
             }
 
-            if (isEmailTaken(email)) {
-                Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
-                return false
-            }
-
             if (password != confirmPassword) {
                 Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
                 return false
             }
 
             return true
+        }
+
+        private fun updateEmailAndPassword(currentUser: LocalUser?, email: String, password: String) {
+            val name = nameEditText.text.toString()
+            val phoneNumber = phoneNumberEditText.text.toString()
+
+            val modifiedUser = User(
+                name = name,
+                email = email,
+                password = password,
+                phoneNumber = phoneNumber,
+                imgUrl = imageUri ?: DEFAULT_IMAGE_URL
+            )
+
+            if (email != currentUser?.email) {
+                updateEmail(email) { success ->
+                    if (success) {
+                        updatePassword(password) {
+                            if (it) {
+                                updateUser(modifiedUser)
+                            } else {
+                                showErrorMessage("Error updating password")
+                            }
+                        }
+                    } else {
+                        showErrorMessage("Error updating email")
+                    }
+                }
+            } else {
+                updatePassword(password) {
+                    if (it) {
+                        updateUser(modifiedUser)
+                    } else {
+                        showErrorMessage("Error updating password")
+                    }
+                }
+            }
+        }
+
+        private fun updateOnlyPassword(email: String, password: String) {
+            val name = nameEditText.text.toString()
+            val phoneNumber = phoneNumberEditText.text.toString()
+
+            val modifiedUser = User(
+                name = name,
+                email = email,
+                password = password,
+                phoneNumber = phoneNumber,
+                imgUrl = imageUri ?: DEFAULT_IMAGE_URL
+            )
+
+            updatePassword(password) {
+                if (it) {
+                    updateUser(modifiedUser)
+                } else {
+                    showErrorMessage("Error updating password")
+                }
+            }
+        }
+
+        private fun checkEmailAvailability(email: String, onComplete: (Boolean) -> Unit) {
+            isEmailTaken(email) { isTaken ->
+                onComplete(!isTaken)
+            }
+        }
+
+        private fun updateEmail(email: String, onComplete: (Boolean) -> Unit) {
+            auth.currentUser?.updateEmail(email)
+                ?.addOnSuccessListener {
+                    onComplete(true)
+                }
+                ?.addOnFailureListener {
+                    onComplete(false)
+                }
+        }
+
+        private fun updatePassword(password: String, onComplete: (Boolean) -> Unit) {
+            auth.currentUser?.updatePassword(password)
+                ?.addOnSuccessListener {
+                    onComplete(true)
+                }
+                ?.addOnFailureListener {
+                    onComplete(false)
+                }
+        }
+
+        private fun updateUser(user: User) {
+            Model.instance.editUserById(userId, user) {
+                Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            }
+        }
+
+        private fun showErrorMessage(message: String) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
         private fun setupUI(view: View) {
@@ -122,14 +221,14 @@
             val userDao = AppLocalDatabase.db.userDao()
             var currentUser: LocalUser? = null
 
-            userDao.getUserById(userId).observe(viewLifecycleOwner, { user ->
+            userDao.getUserById(userId).observe(viewLifecycleOwner) { user ->
                 user?.let {
                     nameEditText.setText(it.name)
                     emailEditText.setText(it.email)
                     phoneNumberEditText.setText(it.phoneNumber)
                     currentUser = it
                 }
-            })
+            }
 
             editImageButton.setOnClickListener {
                 openImagePicker.launch("image/*")
@@ -137,42 +236,18 @@
 
             submitButton.setOnClickListener {
                 if (validateForm()) {
-                    val name = nameEditText.text.toString()
                     val email = emailEditText.text.toString()
-                    val phoneNumber = phoneNumberEditText.text.toString()
                     val password = passwordEditText.text.toString()
 
-                    val modefiedUser = User(
-                        name = name,
-                        email = email,
-                        password = password,
-                        phoneNumber = phoneNumber,
-                        imgUrl = imageUri ?: DEFAULT_IMAGE_URL
-                        )
-                    if (email != currentUser?.email) {
-                        auth.currentUser?.updateEmail(email)
-                            ?.addOnSuccessListener {
-                                Model.instance.editUserById(userId, modefiedUser) {
-                                    Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
-                                    findNavController().popBackStack()
-                                }
-                            }
-                            ?.addOnFailureListener { e ->
-                                Toast.makeText(requireContext(), "Error updating email: ${e.message}", Toast.LENGTH_SHORT).show()
-                            }
-                    }
-                    else {
-                        Model.instance.editUserById(userId, modefiedUser) {
-                            Toast.makeText(
-                                requireContext(),
-                                "User details updated successfully",
-                                Toast.LENGTH_SHORT
-                            ).show()
-
-                            findNavController().popBackStack()
+                    checkEmailAvailability(email) { isAvailable ->
+                        if (isAvailable) {
+                            updateEmailAndPassword(currentUser, email, password)
+                        } else {
+                            updateOnlyPassword(email, password)
                         }
                     }
                 }
             }
+
         }
     }

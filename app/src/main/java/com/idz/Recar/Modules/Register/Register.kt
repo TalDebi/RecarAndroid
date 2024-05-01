@@ -25,6 +25,7 @@ import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.squareup.picasso.Picasso
+import java.util.concurrent.CompletableFuture
 
 const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
@@ -69,9 +70,17 @@ class Register : Fragment() {
         return view
     }
 
-    private fun isEmailTaken(email: String): Boolean {
-        val signInMethods = auth.fetchSignInMethodsForEmail(email).getResult()?.signInMethods ?: emptyList()
-        return signInMethods.isNotEmpty()
+    private fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
+        auth.fetchSignInMethodsForEmail(email)
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val result = task.result
+                    val signInMethods = result?.signInMethods ?: emptyList()
+                    onComplete(signInMethods.isNotEmpty())
+                } else {
+                    onComplete(false)
+                }
+            }
     }
 
     private fun validateForm(): Boolean {
@@ -101,10 +110,10 @@ class Register : Fragment() {
             return false
         }
 
-        if (isEmailTaken(email)) {
-            Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
-            return false
-        }
+//        if (isEmailTaken(email)) {
+//            Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
+//            return false
+//        }
 
         if (password != confirmPassword) {
             Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
@@ -129,28 +138,35 @@ class Register : Fragment() {
 
         registerButton.setOnClickListener {
             if (validateForm()) {
-                val name = nameEditText.text.toString()
                 val email = emailEditText.text.toString()
-                val phoneNumber = phoneNumberEditText.text.toString()
-                val password = passwordEditText.text.toString()
 
-                val user = User(name, email, password, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
+                isEmailTaken(email) { isTaken ->
+                    if (!isTaken) {
+                        val name = nameEditText.text.toString()
+                        val phoneNumber = phoneNumberEditText.text.toString()
+                        val password = passwordEditText.text.toString()
 
-                auth.createUserWithEmailAndPassword(email, password)
-                    .addOnCompleteListener { authTask ->
-                        if (authTask.isSuccessful) {
-                            val firebaseUser = auth.currentUser
-                            val userId = firebaseUser?.uid ?: ""
+                        val user = User(name, email, password, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
 
-                            Model.instance.addUser(user, userId) {
-                                SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                                navController.navigate(RegisterDirections.actionRegisterFragmentToStudentsFragment())
-                                Toast.makeText(requireContext(), "Successfully Signed Up", Toast.LENGTH_SHORT).show()
+                        auth.createUserWithEmailAndPassword(email, password)
+                            .addOnCompleteListener { authTask ->
+                                if (authTask.isSuccessful) {
+                                    val firebaseUser = auth.currentUser
+                                    val userId = firebaseUser?.uid ?: ""
+
+                                    Model.instance.addUser(user, userId) {
+                                        SharedPreferencesHelper.saveUserId(requireContext(), userId)
+                                        navController.navigate(RegisterDirections.actionRegisterFragmentToStudentsFragment())
+                                        Toast.makeText(requireContext(), "Successfully Signed Up", Toast.LENGTH_SHORT).show()
+                                    }
+                                } else {
+                                    Toast.makeText(requireContext(), authTask.exception?.localizedMessage, Toast.LENGTH_SHORT).show()
+                                }
                             }
-                        } else {
-                            Toast.makeText(requireContext(), authTask.exception?.localizedMessage, Toast.LENGTH_SHORT).show()
-                        }
+                    } else {
+                        Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
                     }
+                }
             }
         }
     }
