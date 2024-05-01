@@ -83,16 +83,13 @@ class FirebaseModel {
             }
     }
 
-    fun addUser(user: User, callback: (String) -> Unit) {
+    fun addUser(user: User, uid: String, callback: () -> Unit) {
         db.collection(USERS_COLLECTION_PATH)
-            .add(user.json) // Omitting the document ID
-            .addOnSuccessListener { documentReference ->
-                // Document successfully added with generated ID
-                val generatedId = documentReference.id
-                callback(generatedId)
+            .document(uid).set(user.json) // Omitting the document ID
+            .addOnSuccessListener {
+                callback()
             }
             .addOnFailureListener { e ->
-                // Handle errors here
                 Log.e(TAG, "Error adding document", e)
             }
     }

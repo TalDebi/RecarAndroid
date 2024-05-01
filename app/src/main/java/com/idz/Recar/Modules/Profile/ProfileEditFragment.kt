@@ -15,14 +15,17 @@
     import com.idz.Recar.R
     import com.idz.Recar.Utils.SharedPreferencesHelper
     import com.idz.Recar.dao.AppLocalDatabase
-    import com.idz.Recar.Model.User
     import com.squareup.picasso.Callback
     import com.squareup.picasso.Picasso
     import androidx.navigation.fragment.findNavController
+    import com.google.firebase.auth.FirebaseAuth
+    import com.idz.Recar.dao.User as LocalUser
+    import com.idz.Recar.Model.User
 
     const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
     class ProfileEditFragment : Fragment() {
+        private lateinit var auth: FirebaseAuth
         private lateinit var nameEditText: EditText
         private lateinit var emailEditText: EditText
         private lateinit var phoneNumberEditText: EditText
@@ -37,6 +40,7 @@
             super.onCreate(savedInstanceState)
             setHasOptionsMenu(true)
             // Retrieve the user ID from SharedPreferences
+            auth= FirebaseAuth.getInstance()
             userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
         }
 
@@ -61,6 +65,11 @@
             }
         }
 
+        private fun isEmailTaken(email: String): Boolean {
+            val signInMethods = auth.fetchSignInMethodsForEmail(email).getResult()?.signInMethods ?: emptyList()
+            return signInMethods.isNotEmpty()
+        }
+
         private fun validateForm(): Boolean {
             val name = nameEditText.text.toString()
             val email = emailEditText.text.toString()
@@ -78,8 +87,18 @@
                 return false
             }
 
+            if (password.length < 6) {
+                Toast.makeText(requireContext(), "Password must have at least 6 digits", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
             if (!email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) {
                 Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            if (isEmailTaken(email)) {
+                Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
                 return false
             }
 
@@ -101,12 +120,14 @@
             submitButton = view.findViewById(R.id.submitButton)
             imageView = view.findViewById(R.id.imageView)
             val userDao = AppLocalDatabase.db.userDao()
+            var currentUser: LocalUser? = null
 
             userDao.getUserById(userId).observe(viewLifecycleOwner, { user ->
                 user?.let {
                     nameEditText.setText(it.name)
                     emailEditText.setText(it.email)
                     phoneNumberEditText.setText(it.phoneNumber)
+                    currentUser = it
                 }
             })
 
@@ -128,11 +149,28 @@
                         phoneNumber = phoneNumber,
                         imgUrl = imageUri ?: DEFAULT_IMAGE_URL
                         )
+                    if (email != currentUser?.email) {
+                        auth.currentUser?.updateEmail(email)
+                            ?.addOnSuccessListener {
+                                Model.instance.editUserById(userId, modefiedUser) {
+                                    Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
+                                    findNavController().popBackStack()
+                                }
+                            }
+                            ?.addOnFailureListener { e ->
+                                Toast.makeText(requireContext(), "Error updating email: ${e.message}", Toast.LENGTH_SHORT).show()
+                            }
+                    }
+                    else {
+                        Model.instance.editUserById(userId, modefiedUser) {
+                            Toast.makeText(
+                                requireContext(),
+                                "User details updated successfully",
+                                Toast.LENGTH_SHORT
+                            ).show()
 
-                    Model.instance.editUserById(userId, modefiedUser) {
-                        Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
-
-                        findNavController().popBackStack()
+                            findNavController().popBackStack()
+                        }
                     }
                 }
             }

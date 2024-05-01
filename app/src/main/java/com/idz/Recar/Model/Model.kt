@@ -124,10 +124,10 @@ class Model private constructor() {
         }
     }
 
-    fun addUser(user: User, callback: (String) -> Unit) {
-        firebaseModel.addUser(user) { documentId ->
+    fun addUser(user: User, uid: String, callback: () -> Unit) {
+        firebaseModel.addUser(user, uid) {
             refreshAllUsers()
-            callback(documentId)
+            callback()
         }
     }
 

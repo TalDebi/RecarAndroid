@@ -16,6 +16,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import com.google.android.material.imageview.ShapeableImageView
+import com.google.firebase.auth.FirebaseAuth
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.Student
 import com.idz.Recar.Model.User
@@ -28,6 +29,7 @@ import com.squareup.picasso.Picasso
 const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
 class Register : Fragment() {
+    private lateinit var auth: FirebaseAuth
     private lateinit var nameEditText: EditText
     private lateinit var emailEditText: EditText
     private lateinit var phoneNumberEditText: EditText
@@ -40,6 +42,7 @@ class Register : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        auth= FirebaseAuth.getInstance()
     }
 
     private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
@@ -66,6 +69,11 @@ class Register : Fragment() {
         return view
     }
 
+    private fun isEmailTaken(email: String): Boolean {
+        val signInMethods = auth.fetchSignInMethodsForEmail(email).getResult()?.signInMethods ?: emptyList()
+        return signInMethods.isNotEmpty()
+    }
+
     private fun validateForm(): Boolean {
         val name = nameEditText.text.toString()
         val email = emailEditText.text.toString()
@@ -83,8 +91,18 @@ class Register : Fragment() {
             return false
         }
 
+        if (password.length < 6) {
+            Toast.makeText(requireContext(), "Password must have at least 6 digits", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
         if (!email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) {
             Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show()
+            return false
+        }
+
+        if (isEmailTaken(email)) {
+            Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
             return false
         }
 
@@ -117,10 +135,22 @@ class Register : Fragment() {
                 val password = passwordEditText.text.toString()
 
                 val user = User(name, email, password, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
-                Model.instance.addUser(user) { documentId ->
-                    SharedPreferencesHelper.saveUserId(requireContext(), documentId)
-                    navController.navigate(LoginDirections.actionRegisterFragmentToStudentsFragment())
-                }
+
+                auth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener { authTask ->
+                        if (authTask.isSuccessful) {
+                            val firebaseUser = auth.currentUser
+                            val userId = firebaseUser?.uid ?: ""
+
+                            Model.instance.addUser(user, userId) {
+                                SharedPreferencesHelper.saveUserId(requireContext(), userId)
+                                navController.navigate(RegisterDirections.actionRegisterFragmentToStudentsFragment())
+                                Toast.makeText(requireContext(), "Successfully Signed Up", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(requireContext(), authTask.exception?.localizedMessage, Toast.LENGTH_SHORT).show()
+                        }
+                    }
             }
         }
     }

@@ -49,7 +49,7 @@ data class User(
     init {
         require(name.length >= 1) { "Name must have at least 1 character" }
         require(email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) { "Invalid email format" }
-        require(password.length >= 1) { "Password must have at least 1 character" }
+        require(password.length >= 6) { "Password must have at least 6 character" }
         require(phoneNumber.length == 10) { "Phone number must have 10 digits" }
     }
 
