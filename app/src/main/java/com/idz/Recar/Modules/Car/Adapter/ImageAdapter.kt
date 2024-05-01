@@ -16,13 +16,14 @@ import com.google.android.gms.tasks.OnSuccessListener
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import com.idz.Recar.R
+import com.idz.Recar.base.FireBaseStorage
 import com.squareup.picasso.Picasso
 
 
 class ImageAdapter(arrayList: ArrayList<String>) :
     RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
     var arrayList: ArrayList<String>
-    var storage = Firebase.storage("gs://recar-46bcf.appspot.com")
+    var storage = FireBaseStorage.getInstance().storage
 
     init {
         this.arrayList = arrayList

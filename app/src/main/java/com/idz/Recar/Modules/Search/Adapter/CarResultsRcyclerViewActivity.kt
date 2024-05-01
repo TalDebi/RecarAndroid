@@ -6,8 +6,6 @@ import android.util.Log
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.idz.Recar.Model.Car
-import com.idz.Recar.Model.Student
-import com.idz.Recar.Modules.Students.Adapter.CarResultRecyclerAdapter
 import com.idz.Recar.databinding.ActivityStudentsRcyclerViewBinding
 
 class CarResultRecyclerViewActivity : AppCompatActivity() {
@@ -29,7 +27,8 @@ class CarResultRecyclerViewActivity : AppCompatActivity() {
         studentsRcyclerView?.layoutManager = LinearLayoutManager(this)
 
         adapter = CarResultRecyclerAdapter(results)
-        adapter?.listener = object : OnItemClickListener {
+        adapter?.listener = object : OnItemClickListener,
+            com.idz.Recar.Modules.Search.Adapter.OnItemClickListener {
 
             override fun onItemClick(position: Int) {
                 Log.i("TAG", "StudentsRecyclerAdapter: Position clicked $position")

@@ -1,6 +1,5 @@
 package com.idz.Recar.Model
 
-import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import androidx.core.os.HandlerCompat
@@ -43,8 +42,13 @@ class Model private constructor() {
     fun observeUsersList(owner: LifecycleOwner, observer: (List<LocalUser>) -> Unit) {
         usersList.observe(owner, observer)
     }
-    fun obserfeCurrCar(owner: LifecycleOwner, observer: (Car) -> Unit) {
+
+    fun observeCurrCar(owner: LifecycleOwner, observer: (Car) -> Unit) {
         currCar?.observe(owner, observer)
+    }
+
+    fun observeCarList(owner: LifecycleOwner, observer: (List<Car>) -> Unit) {
+        results?.observe(owner, observer)
     }
 
     fun removeStudentsListObservers(owner: LifecycleOwner) {
@@ -65,8 +69,30 @@ class Model private constructor() {
         return students ?: database.studentDao().getAll()
     }
 
-    fun getAllCars(): LiveData<MutableList<Car>> {
-        return results ?: database.carDao().getAll()
+    fun getAllCars(
+        yearStart: Int,
+        yearEnd: Int,
+        mileageStart: Int,
+        mileageEnd: Int,
+        priceStart: Int,
+        priceEnd: Int,
+        color: String?,
+        model: String?,
+        make: String?
+    ): LiveData<MutableList<Car>> {
+        refreshAllCars(
+            yearStart,
+            yearEnd,
+            mileageStart,
+            mileageEnd,
+            priceStart,
+            priceEnd,
+            color,
+            model,
+            make
+        )
+        val a = results ?: database.carDao().getAll()
+        return a
     }
 
     fun getCarById(id: String): LiveData<Car> {
@@ -133,6 +159,52 @@ class Model private constructor() {
 
                 // Update the loading state
                 usersListLoadingState.postValue(LoadingState.LOADED)
+            }
+        }
+    }
+
+    fun refreshAllCars(
+        yearStart: Int,
+        yearEnd: Int,
+        mileageStart: Int,
+        mileageEnd: Int,
+        priceStart: Int,
+        priceEnd: Int,
+        color: String?,
+        model: String?,
+        make: String?
+    ) {
+        resultsLoadingState.value = LoadingState.LOADING
+        firebaseModel.getAllCars(
+            yearStart,
+            yearEnd,
+            mileageStart,
+            mileageEnd,
+            priceStart,
+            priceEnd,
+            color,
+            model,
+            make
+        ) { list ->
+            Log.i("TAG", "Firebase returned ${list.size} cars")
+            executor.execute {
+                list.forEach { car ->
+                    val localCar = Car(
+                        car.id,
+                        car.imageUrls,
+                        car.make,
+                        car.model,
+                        car.year,
+                        car.price,
+                        car.hand,
+                        car.color,
+                        car.mileage,
+                        car.city,
+                        car.owner
+                    )
+                    database.carDao().insert(localCar)
+                }
+                resultsLoadingState.postValue(LoadingState.LOADED)
             }
         }
     }

@@ -33,8 +33,8 @@ class Car(
         const val MILEAGE_KEY = "mileage"
         const val CITY_KEY = "city"
         const val OWNER_KEY = "owner"
-        fun fromJSON(json: Map<String, Any>): Car {
-            val id = json[ID_KEY] as? String ?: ""
+        fun fromJSON(json: Map<String, Any>, id: String = ""): Car {
+            val id = json[ID_KEY] as? String ?: id
             val imageUrls = json[IMAGE_URLS_KEY] as? ArrayList<String> ?: arrayListOf<String>()
             val make = json[MAKE_KEY] as? String ?: ""
             val model = json[MODEL_KEY] as? String ?: ""

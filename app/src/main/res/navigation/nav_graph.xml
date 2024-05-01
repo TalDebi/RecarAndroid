@@ -74,4 +74,5 @@
         android:id="@+id/currCarFragment"
         android:name="com.idz.Recar.Modules.Car.Car"
         android:label="CarFragment" />
+    <action android:id="@+id/action_global_currCarFragment" app:destination="@id/currCarFragment" />
 </navigation>
