@@ -146,7 +146,7 @@ class Register : Fragment() {
                         val phoneNumber = phoneNumberEditText.text.toString()
                         val password = passwordEditText.text.toString()
 
-                        val user = User(name, email, password, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
+                        val user = User(name, email, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
 
                         auth.createUserWithEmailAndPassword(email, password)
                             .addOnCompleteListener { authTask ->

@@ -11,7 +11,6 @@ data class User(
     @PrimaryKey(autoGenerate = false) var id: String = "",
     var name: String,
     var email: String,
-    var password: String,
     var phoneNumber: String = "",
     var imgUrl: String = User.DEFAULT_IMAGE_URL,
     @TypeConverters(FieldValueConverter::class) var lastUpdated: FieldValue? = null,

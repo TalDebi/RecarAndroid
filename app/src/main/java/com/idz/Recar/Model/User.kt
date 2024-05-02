@@ -12,7 +12,6 @@ import com.squareup.picasso.Picasso
 data class User(
     var name: String,
     var email: String,
-    var password: String,
     var phoneNumber: String = "",
     var imgUrl: String = DEFAULT_IMAGE_URL,
     @TypeConverters(FieldValueConverter::class) var lastUpdated: FieldValue? = null,
@@ -21,7 +20,6 @@ data class User(
         const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
         const val NAME_KEY = "name"
         const val EMAIL_KEY = "email"
-        const val PASSWORD_KEY = "password"
         const val PHONE_NUMBER_KEY = "phoneNumber"
         const val IMG_URL_KEY = "imgUrl"
         const val LAST_UPDATED = "lastUpdated"
@@ -29,11 +27,10 @@ data class User(
         fun fromJSON(json: Map<String, Any>): User {
             val name = json[NAME_KEY] as? String ?: ""
             val email = json[EMAIL_KEY] as? String ?: ""
-            val password = json[PASSWORD_KEY] as? String ?: ""
             val phoneNumber = json[PHONE_NUMBER_KEY] as? String ?: ""
             val imgUrl = json[IMG_URL_KEY] as? String ?: DEFAULT_IMAGE_URL // Use default image if imgUrl is not provided
 
-            val user = User(name, email, password, phoneNumber, imgUrl)
+            val user = User(name, email, phoneNumber, imgUrl)
 
             // Assuming LAST_UPDATED is provided as a Timestamp
             val timestamp = json[LAST_UPDATED] as? Long
@@ -49,7 +46,6 @@ data class User(
     init {
         require(name.length >= 1) { "Name must have at least 1 character" }
         require(email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) { "Invalid email format" }
-        require(password.length >= 6) { "Password must have at least 6 character" }
         require(phoneNumber.length == 10) { "Phone number must have 10 digits" }
     }
 
@@ -71,7 +67,6 @@ data class User(
             return hashMapOf(
                 NAME_KEY to name,
                 EMAIL_KEY to email,
-                PASSWORD_KEY to password,
                 PHONE_NUMBER_KEY to phoneNumber,
                 IMG_URL_KEY to imgUrl,
                 LAST_UPDATED to FieldValue.serverTimestamp()

@@ -121,7 +121,6 @@
             val modifiedUser = User(
                 name = name,
                 email = email,
-                password = password,
                 phoneNumber = phoneNumber,
                 imgUrl = imageUri ?: DEFAULT_IMAGE_URL
             )
@@ -158,7 +157,6 @@
             val modifiedUser = User(
                 name = name,
                 email = email,
-                password = password,
                 phoneNumber = phoneNumber,
                 imgUrl = imageUri ?: DEFAULT_IMAGE_URL
             )

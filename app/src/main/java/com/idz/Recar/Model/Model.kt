@@ -103,7 +103,6 @@ class Model private constructor() {
                         id = id,
                         name = user.name,
                         email = user.email,
-                        password = user.password,
                         phoneNumber = user.phoneNumber,
                         imgUrl = user.imgUrl,
                         lastUpdated = user.lastUpdated

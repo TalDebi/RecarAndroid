@@ -10,19 +10,19 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import com.google.firebase.auth.FirebaseAuth
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.idz.Recar.dao.AppLocalDatabase
 
 class ProfileInfoFragment : Fragment() {
 
-    private lateinit var userId: String // User ID to load user details
+    private lateinit var userId: String
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        // Retrieve the user ID from SharedPreferences
         userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
     }
 
@@ -38,9 +38,7 @@ class ProfileInfoFragment : Fragment() {
     private fun setupUI(view: View) {
         val userDao = AppLocalDatabase.db.userDao()
 
-        // Fetch user details based on the user ID
         userDao.getUserById(userId).observe(viewLifecycleOwner, Observer { user ->
-            // Populate the UI with user details
             user?.let {
                 view.findViewById<TextView>(R.id.name).text = it.name
                 view.findViewById<TextView>(R.id.email).text = it.email
@@ -48,10 +46,15 @@ class ProfileInfoFragment : Fragment() {
             }
         })
 
-        // Navigate to the profile edit fragment when the edit profile button is clicked
         val editProfileButton: TextView = view.findViewById(R.id.name)
-        val action = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
+        var action = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
         editProfileButton.setOnClickListener { Navigation.findNavController(view).navigate(action) }
+        val logoutButton: TextView = view.findViewById(R.id.logoutButton)
+        action = ProfileInfoFragmentDirections.actionProfileInfoFragmentToLoginFragment()
+        logoutButton.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+            Navigation.findNavController(view).navigate(action)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
