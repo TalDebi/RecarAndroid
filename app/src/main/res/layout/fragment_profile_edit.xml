@@ -126,7 +126,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/submitButton"
+        android:id="@+id/editButton"
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="0dp"
         android:layout_height="60dp"
@@ -135,5 +135,16 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_marginTop="16dp"/>
+
+    <ProgressBar
+        android:id="@+id/editProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="@id/editButton"
+        app:layout_constraintBottom_toBottomOf="@id/editButton"
+        app:layout_constraintEnd_toEndOf="@id/editButton"
+        app:layout_constraintStart_toStartOf="@id/editButton"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

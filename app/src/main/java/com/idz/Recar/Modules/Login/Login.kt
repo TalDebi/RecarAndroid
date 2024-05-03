@@ -28,6 +28,8 @@ import com.idz.Recar.Modules.Register.RegisterDirections
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 
+const val RC_SIGN_IN: Int = 1
+
 class Login : Fragment() {
     private lateinit var auth: FirebaseAuth
     private lateinit var emailEditText: EditText
@@ -36,7 +38,6 @@ class Login : Fragment() {
     private lateinit var mGoogleSignInClient: GoogleSignInClient
     private lateinit var loginButton: MaterialButton
     private lateinit var loginProgressBar: ProgressBar
-    private val RC_SIGN_IN: Int = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,15 +54,10 @@ class Login : Fragment() {
         loginButton = view.findViewById(R.id.loginButton)
         loginProgressBar = view.findViewById(R.id.loginProgressBar)
 
-        loginButton.setOnClickListener {
-            signInWithEmailPassword()
-            signInWithGoogle()
-        }
         signupLink.setOnClickListener {
             val action = LoginDirections.actionLoginFragmentToRegisterFragment()
             navController.navigate(action)
         }
-        val loginButton: Button = view.findViewById(R.id.loginButton)
         loginButton.setOnClickListener {
             signInWithEmailPassword()
         }

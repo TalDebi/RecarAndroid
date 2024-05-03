@@ -7,6 +7,7 @@
     import android.widget.Button
     import android.widget.EditText
     import android.widget.ImageButton
+    import android.widget.ProgressBar
     import android.widget.Toast
     import androidx.activity.result.contract.ActivityResultContracts
     import androidx.fragment.app.Fragment
@@ -18,6 +19,7 @@
     import com.squareup.picasso.Callback
     import com.squareup.picasso.Picasso
     import androidx.navigation.fragment.findNavController
+    import com.google.android.material.button.MaterialButton
     import com.google.firebase.auth.FirebaseAuth
     import com.idz.Recar.dao.User as LocalUser
     import com.idz.Recar.Model.User
@@ -36,6 +38,8 @@
         private var imageView: ShapeableImageView? = null
         private var imageUri: String? = null
         private lateinit var userId: String
+        private lateinit var editButton: MaterialButton
+        private lateinit var editProgressBar: ProgressBar
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -214,7 +218,8 @@
             phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText)
             passwordEditText = view.findViewById(R.id.passwordEditText)
             confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
-            submitButton = view.findViewById(R.id.submitButton)
+            editButton = view.findViewById(R.id.editButton)
+            editProgressBar = view.findViewById(R.id.editProgressBar)
             imageView = view.findViewById(R.id.imageView)
             val userDao = AppLocalDatabase.db.userDao()
             var currentUser: LocalUser? = null
@@ -233,6 +238,9 @@
             }
 
             submitButton.setOnClickListener {
+                editProgressBar.visibility = View.VISIBLE
+                editButton.isEnabled = false
+
                 if (validateForm()) {
                     val email = emailEditText.text.toString()
                     val password = passwordEditText.text.toString()
@@ -245,6 +253,9 @@
                         }
                     }
                 }
+
+                editProgressBar.visibility = View.GONE
+                editButton.isEnabled = true
             }
 
         }

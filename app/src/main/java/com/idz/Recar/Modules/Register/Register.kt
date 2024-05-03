@@ -10,11 +10,13 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
+import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
+import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.auth.FirebaseAuth
 import com.idz.Recar.Model.Model
@@ -39,6 +41,8 @@ class Register : Fragment() {
     private val navController by lazy { Navigation.findNavController(requireView()) }
     private var profileImage: ShapeableImageView? = null
     private var imageUri: String? = null
+    private lateinit var registerButton: MaterialButton
+    private lateinit var registerProgressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -130,13 +134,17 @@ class Register : Fragment() {
         phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText)
         passwordEditText = view.findViewById(R.id.passwordEditText)
         confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
-        val registerButton: Button = view.findViewById(R.id.registerButton)
+        registerButton = view.findViewById(R.id.registerButton)
+        registerProgressBar = view.findViewById(R.id.registerProgressBar)
 
         editImageButton.setOnClickListener {
             openImagePicker.launch("image/*")
         }
 
         registerButton.setOnClickListener {
+            registerProgressBar.visibility = View.VISIBLE
+            registerButton.isEnabled = false
+
             if (validateForm()) {
                 val email = emailEditText.text.toString()
 
@@ -168,6 +176,9 @@ class Register : Fragment() {
                     }
                 }
             }
+
+            registerProgressBar.visibility = View.GONE
+            registerButton.isEnabled = true
         }
     }
 
