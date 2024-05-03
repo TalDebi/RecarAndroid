@@ -11,6 +11,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.google.android.material.navigation.NavigationBarView
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
@@ -36,6 +37,12 @@ class MainActivity : AppCompatActivity() {
         val bottomNavigationView: BottomNavigationView =
             findViewById(R.id.mainActivityBottomNavigationView)
         navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                else -> navController?.navigate(item.itemId)
+            }
+            true
+        }
 
         navController?.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.loginFragment || destination.id == R.id.registerFragment) {
@@ -64,7 +71,9 @@ class MainActivity : AppCompatActivity() {
                 navController?.navigateUp()
                 true
             }
-            else -> navController?.let { NavigationUI.onNavDestinationSelected(item, it) } ?: super.onOptionsItemSelected(item)
+
+            else -> navController?.let { NavigationUI.onNavDestinationSelected(item, it) }
+                ?: super.onOptionsItemSelected(item)
         }
     }
 }

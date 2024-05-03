@@ -1,5 +1,6 @@
 package com.idz.Recar.Modules.Search
 
+import android.content.DialogInterface
 import android.icu.text.NumberFormat
 import android.icu.util.Currency
 import android.os.Bundle
@@ -20,7 +21,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.google.android.material.chip.Chip
-import com.google.android.material.sidesheet.SideSheetBehavior
 import com.google.android.material.sidesheet.SideSheetCallback
 import com.google.android.material.sidesheet.SideSheetDialog
 import com.google.android.material.slider.RangeSlider
@@ -117,17 +117,37 @@ class SearchFragment : Fragment() {
 
 
         filterSheet?.setSheetEdge(Gravity.START)
-        val standardSideSheetBehavior = SideSheetBehavior.from(sideSheetView)
-        standardSideSheetBehavior.addCallback(object : SideSheetCallback() {
-            override fun onStateChanged(sideSheet: View, newState: Int) {
-                if (newState == SideSheetBehavior.STATE_HIDDEN) {
-                    reloadData()
-                }
+        filterSheet?.setOnDismissListener(object : DialogInterface.OnDismissListener {
+            override fun onDismiss(dialog: DialogInterface?) {
+                reloadData()
             }
 
-            override fun onSlide(p0: View, p1: Float) {}
-
         })
+        val standardSideSheetBehavior = filterSheet?.behavior
+//        val sideSheetCallback = object : SideSheetCallback() {
+//            override fun onStateChanged(sideSheet: View, newState: Int) {
+//                if (newState == SideSheetBehavior.STATE_HIDDEN) {
+//                    reloadData()
+//                }
+//            }
+//
+//
+//            override fun onSlide(p0: View, p1: Float) {
+//                print("a")
+//            }
+//
+//        }
+        val sideSheetCallback = object : SideSheetCallback() {
+
+            override fun onStateChanged(sideSheet: View, newState: Int) {
+                print("a")
+            }
+
+            override fun onSlide(sideSheet: View, slideOffset: Float) {
+                print("b")
+            }
+        }
+        standardSideSheetBehavior?.addCallback(sideSheetCallback)
 
         priceSlider?.let {
             it.values = listOf<Float>(0F, 100000F)
@@ -354,13 +374,13 @@ class SearchFragment : Fragment() {
             make
         )
         progressBar?.visibility = View.GONE
+        binding.pullToRefresh.isRefreshing = false
     }
 
 
-    override fun onDestroy() {
-        super.onDestroy()
-        _binding = null
-    }
+
+
+
 }
 
 

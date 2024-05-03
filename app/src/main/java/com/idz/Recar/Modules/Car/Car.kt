@@ -11,6 +11,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.JsonArrayRequest
@@ -23,6 +24,7 @@ import com.google.firebase.storage.ktx.storage
 import com.idz.Recar.Model.Car
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Modules.Car.Adapter.ImageAdapter
+import com.idz.Recar.R
 import com.idz.Recar.base.VollyQueue
 import com.idz.Recar.dao.AppLocalDatabase
 import com.idz.Recar.databinding.FragmentCarPageBinding
@@ -157,6 +159,12 @@ class Car : Fragment() {
 
 
     }
+
+    override fun onStop() {
+        super.onStop()
+        findNavController().popBackStack(R.id.action_global_searchFragment, false)
+    }
+
 
 
 }

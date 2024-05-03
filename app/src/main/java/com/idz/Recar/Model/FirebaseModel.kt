@@ -61,18 +61,20 @@ class FirebaseModel {
                 true -> {
                     val cars: MutableList<Car> = mutableListOf()
                     for (json in it.result) {
-                        val car = Car.fromJSON(json.data)
+                        val car = Car.fromJSON(json.data, json.id)
                         cars.add(car)
                     }
                     callback(cars)
                 }
 
-                false -> callback(mutableListOf())
+                false -> {
+                    callback(mutableListOf())
+                }
             }
         }
     }
 
-    fun getCarById(id: String, callback: (Map<String,Any>?) -> Unit) {
+    fun getCarById(id: String, callback: (Map<String, Any>?) -> Unit) {
         val query = db.collection(CARS_COLLECTION_PATH).document(id)
         query.get().addOnCompleteListener {
             when (it.isSuccessful) {
