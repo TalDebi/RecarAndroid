@@ -10,10 +10,12 @@ import com.google.firebase.firestore.persistentCacheSettings
 import com.google.firebase.ktx.Firebase
 
 import androidx.lifecycle.LifecycleOwner
+import com.google.firebase.auth.FirebaseAuth
 
 class FirebaseModel {
 
     private val db = Firebase.firestore
+    private val auth = FirebaseAuth.getInstance()
 
     companion object {
         const val STUDENTS_COLLECTION_PATH = "students"
@@ -25,6 +27,14 @@ class FirebaseModel {
             setLocalCacheSettings(memoryCacheSettings {  })
         }
         db.firestoreSettings = settings
+    }
+
+    private fun <T> handleFirestoreRequest(request: () -> T) {
+        if (auth.currentUser != null) {
+            request()
+        } else {
+            Log.e(TAG, "Error: User is not authorized")
+        }
     }
 
     fun getAllStudents(since: Long, callback: (List<Student>) -> Unit) {
@@ -84,27 +94,30 @@ class FirebaseModel {
     }
 
     fun addUser(user: User, uid: String, callback: () -> Unit) {
-        db.collection(USERS_COLLECTION_PATH)
-            .document(uid).set(user.json) // Omitting the document ID
-            .addOnSuccessListener {
-                callback()
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error adding document", e)
-            }
+        handleFirestoreRequest {
+            db.collection(USERS_COLLECTION_PATH)
+                .document(uid).set(user.json)
+                .addOnSuccessListener {
+                    callback()
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error adding document", e)
+                }
+        }
     }
 
     fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
-        db.collection(USERS_COLLECTION_PATH)
-            .document(userId)
-            .set(newUser.json) // Overwrites the existing document with the new user data
-            .addOnSuccessListener {
-                callback()
-            }
-            .addOnFailureListener { e ->
-                // Handle errors here
-                Log.e(TAG, "Error editing user document", e)
-            }
+        handleFirestoreRequest {
+            db.collection(USERS_COLLECTION_PATH)
+                .document(userId)
+                .set(newUser.json)
+                .addOnSuccessListener {
+                    callback()
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error editing user document", e)
+                }
+        }
     }
 }
 
