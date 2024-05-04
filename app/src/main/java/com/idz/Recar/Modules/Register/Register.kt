@@ -114,17 +114,17 @@ class Register : Fragment() {
             return false
         }
 
-//        if (isEmailTaken(email)) {
-//            Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
-//            return false
-//        }
-
         if (password != confirmPassword) {
             Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
             return false
         }
 
         return true
+    }
+
+    private fun toggleLoading(isLoading: Boolean) {
+        registerProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        registerButton.isEnabled = !isLoading
     }
 
     private fun setupUI(view: View) {
@@ -142,8 +142,7 @@ class Register : Fragment() {
         }
 
         registerButton.setOnClickListener {
-            registerProgressBar.visibility = View.VISIBLE
-            registerButton.isEnabled = false
+            toggleLoading(true)
 
             if (validateForm()) {
                 val email = emailEditText.text.toString()
@@ -170,15 +169,17 @@ class Register : Fragment() {
                                 } else {
                                     Toast.makeText(requireContext(), authTask.exception?.localizedMessage, Toast.LENGTH_SHORT).show()
                                 }
+
+                                toggleLoading(false)
                             }
                     } else {
                         Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
+                        toggleLoading(false)
                     }
                 }
+            } else {
+                toggleLoading(false)
             }
-
-            registerProgressBar.visibility = View.GONE
-            registerButton.isEnabled = true
         }
     }
 

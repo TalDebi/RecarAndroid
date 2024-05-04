@@ -47,13 +47,13 @@ class ProfileInfoFragment : Fragment() {
         })
 
         val editProfileButton: TextView = view.findViewById(R.id.name)
-        var action = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
-        editProfileButton.setOnClickListener { Navigation.findNavController(view).navigate(action) }
+        val actionNavigateToEdit = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
+        editProfileButton.setOnClickListener { Navigation.findNavController(view).navigate(actionNavigateToEdit) }
         val logoutButton: TextView = view.findViewById(R.id.logoutButton)
-        action = ProfileInfoFragmentDirections.actionProfileInfoFragmentToLoginFragment()
+        val actionNavigateToLogin = ProfileInfoFragmentDirections.actionProfileInfoFragmentToLoginFragment()
         logoutButton.setOnClickListener {
             FirebaseAuth.getInstance().signOut()
-            Navigation.findNavController(view).navigate(action)
+            Navigation.findNavController(view).navigate(actionNavigateToLogin)
         }
     }
 

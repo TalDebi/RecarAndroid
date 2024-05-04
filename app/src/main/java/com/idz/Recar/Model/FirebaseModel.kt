@@ -15,7 +15,6 @@ import com.google.firebase.auth.FirebaseAuth
 class FirebaseModel {
 
     private val db = Firebase.firestore
-    private val auth = FirebaseAuth.getInstance()
 
     companion object {
         const val STUDENTS_COLLECTION_PATH = "students"
@@ -27,14 +26,6 @@ class FirebaseModel {
             setLocalCacheSettings(memoryCacheSettings {  })
         }
         db.firestoreSettings = settings
-    }
-
-    private fun <T> handleFirestoreRequest(request: () -> T) {
-        if (auth.currentUser != null) {
-            request()
-        } else {
-            Log.e(TAG, "Error: User is not authorized")
-        }
     }
 
     fun getAllStudents(since: Long, callback: (List<Student>) -> Unit) {
@@ -94,30 +85,26 @@ class FirebaseModel {
     }
 
     fun addUser(user: User, uid: String, callback: () -> Unit) {
-        handleFirestoreRequest {
-            db.collection(USERS_COLLECTION_PATH)
-                .document(uid).set(user.json)
-                .addOnSuccessListener {
-                    callback()
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Error adding document", e)
-                }
-        }
+        db.collection(USERS_COLLECTION_PATH)
+            .document(uid).set(user.json)
+            .addOnSuccessListener {
+                callback()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error adding document", e)
+            }
     }
 
     fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
-        handleFirestoreRequest {
-            db.collection(USERS_COLLECTION_PATH)
-                .document(userId)
-                .set(newUser.json)
-                .addOnSuccessListener {
-                    callback()
-                }
-                .addOnFailureListener { e ->
-                    Log.e(TAG, "Error editing user document", e)
-                }
-        }
+        db.collection(USERS_COLLECTION_PATH)
+            .document(userId)
+            .set(newUser.json)
+            .addOnSuccessListener {
+                callback()
+            }
+            .addOnFailureListener { e ->
+                Log.e(TAG, "Error editing user document", e)
+            }
     }
 }
 

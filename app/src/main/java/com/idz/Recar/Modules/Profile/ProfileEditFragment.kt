@@ -34,7 +34,6 @@
         private lateinit var phoneNumberEditText: EditText
         private lateinit var passwordEditText: EditText
         private lateinit var confirmPasswordEditText: EditText
-        private lateinit var submitButton: Button
         private var imageView: ShapeableImageView? = null
         private var imageUri: String? = null
         private lateinit var userId: String
@@ -135,11 +134,14 @@
                         updatePassword(password) {
                             if (it) {
                                 updateUser(modifiedUser)
+                                toggleLoading(false)
                             } else {
+                                toggleLoading(false)
                                 showErrorMessage("Error updating password")
                             }
                         }
                     } else {
+                        toggleLoading(false)
                         showErrorMessage("Error updating email")
                     }
                 }
@@ -147,8 +149,10 @@
                 updatePassword(password) {
                     if (it) {
                         updateUser(modifiedUser)
+                        toggleLoading(false)
                     } else {
                         showErrorMessage("Error updating password")
+                        toggleLoading(false)
                     }
                 }
             }
@@ -168,7 +172,9 @@
             updatePassword(password) {
                 if (it) {
                     updateUser(modifiedUser)
+                    toggleLoading(false)
                 } else {
+                    toggleLoading(false)
                     showErrorMessage("Error updating password")
                 }
             }
@@ -211,6 +217,11 @@
             Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
         }
 
+        private fun toggleLoading(isLoading: Boolean) {
+            editProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            editButton.isEnabled = !isLoading
+        }
+
         private fun setupUI(view: View) {
             val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
             nameEditText = view.findViewById(R.id.nameEditText)
@@ -237,9 +248,8 @@
                 openImagePicker.launch("image/*")
             }
 
-            submitButton.setOnClickListener {
-                editProgressBar.visibility = View.VISIBLE
-                editButton.isEnabled = false
+            editButton.setOnClickListener {
+                toggleLoading(true)
 
                 if (validateForm()) {
                     val email = emailEditText.text.toString()
@@ -252,11 +262,9 @@
                             updateOnlyPassword(email, password)
                         }
                     }
+                } else {
+                    toggleLoading(false)
                 }
-
-                editProgressBar.visibility = View.GONE
-                editButton.isEnabled = true
             }
-
         }
     }

@@ -59,14 +59,14 @@
         android:label="Profile Info"
         tools:layout="@layout/fragment_profile_info">
         <action
-            android:id="@+id/action_profileInfoFragment_to_profileEditFragment"
-            app:destination="@id/profileEditFragment" />
-        <action
             android:id="@+id/action_profileInfoFragment_to_loginFragment"
             app:destination="@id/loginFragment"
             app:popUpTo="@+id/nav_graph"
             app:popUpToInclusive="true"
             />
+        <action
+            android:id="@+id/action_profileInfoFragment_to_profileEditFragment"
+            app:destination="@id/profileEditFragment" />
     </fragment>
     <fragment
         android:id="@+id/profileEditFragment"
