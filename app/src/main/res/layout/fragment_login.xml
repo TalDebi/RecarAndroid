@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:text="Welcome back"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline3"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline4"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/logoImageView" />
@@ -88,6 +88,17 @@
         app:layout_constraintTop_toBottomOf="@id/passwordInputLayout"
         android:layout_marginTop="16dp"/>
 
+    <ProgressBar
+        android:id="@+id/loginProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="@id/loginButton"
+        app:layout_constraintBottom_toBottomOf="@id/loginButton"
+        app:layout_constraintEnd_toEndOf="@id/loginButton"
+        app:layout_constraintStart_toStartOf="@id/loginButton"/>
+
     <TextView
         android:id="@+id/orText"
         android:layout_width="wrap_content"
@@ -112,24 +123,29 @@
         android:layout_marginTop="24dp"
         android:elevation="0dp"/>
 
-    <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/rememberMeCheckBox"
-        style="@style/Widget.MaterialComponents.CompoundButton.CheckBox"
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Remember Me"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/loginWithGoogleButton"
-        android:layout_marginTop="8dp"/>
-
-    <TextView
-        android:id="@+id/signupTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:orientation="horizontal"
         android:layout_marginTop="32dp"
-        android:text="Don't have an account? Sign up"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/rememberMeCheckBox" />
+        app:layout_constraintTop_toBottomOf="@id/loginWithGoogleButton">
+
+        <TextView
+            android:id="@+id/signupTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Don't have an account? " />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/signupLink"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Sign up"
+            android:textColor="@color/primary"
+            android:backgroundTint="@null"
+            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

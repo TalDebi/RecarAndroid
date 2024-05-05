@@ -103,7 +103,6 @@ class Model private constructor() {
                         id = id,
                         name = user.name,
                         email = user.email,
-                        password = user.password,
                         phoneNumber = user.phoneNumber,
                         imgUrl = user.imgUrl,
                         lastUpdated = user.lastUpdated
@@ -124,10 +123,10 @@ class Model private constructor() {
         }
     }
 
-    fun addUser(user: User, callback: (String) -> Unit) {
-        firebaseModel.addUser(user) { documentId ->
+    fun addUser(user: User, uid: String, callback: () -> Unit) {
+        firebaseModel.addUser(user, uid) {
             refreshAllUsers()
-            callback(documentId)
+            callback()
         }
     }
 

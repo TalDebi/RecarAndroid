@@ -7,6 +7,7 @@
     import android.widget.Button
     import android.widget.EditText
     import android.widget.ImageButton
+    import android.widget.ProgressBar
     import android.widget.Toast
     import androidx.activity.result.contract.ActivityResultContracts
     import androidx.fragment.app.Fragment
@@ -15,28 +16,37 @@
     import com.idz.Recar.R
     import com.idz.Recar.Utils.SharedPreferencesHelper
     import com.idz.Recar.dao.AppLocalDatabase
-    import com.idz.Recar.Model.User
     import com.squareup.picasso.Callback
     import com.squareup.picasso.Picasso
     import androidx.navigation.fragment.findNavController
+    import com.google.android.material.button.MaterialButton
+    import com.google.firebase.auth.FirebaseAuth
+    import com.idz.Recar.Model.FirebaseModel
+    import com.idz.Recar.dao.User as LocalUser
+    import com.idz.Recar.Model.User
+    import java.util.concurrent.CompletableFuture
 
     const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
     class ProfileEditFragment : Fragment() {
+        private lateinit var auth: FirebaseAuth
         private lateinit var nameEditText: EditText
         private lateinit var emailEditText: EditText
         private lateinit var phoneNumberEditText: EditText
         private lateinit var passwordEditText: EditText
         private lateinit var confirmPasswordEditText: EditText
-        private lateinit var submitButton: Button
         private var imageView: ShapeableImageView? = null
         private var imageUri: String? = null
         private lateinit var userId: String
+        private lateinit var editButton: MaterialButton
+        private lateinit var editProgressBar: ProgressBar
+        private val firebaseModel = FirebaseModel()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setHasOptionsMenu(true)
             // Retrieve the user ID from SharedPreferences
+            auth= FirebaseAuth.getInstance()
             userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
         }
 
@@ -49,56 +59,9 @@
             return view
         }
 
-        private fun setupUI(view: View) {
-            val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
-            nameEditText = view.findViewById(R.id.nameEditText)
-            emailEditText = view.findViewById(R.id.emailEditText)
-            phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText)
-            passwordEditText = view.findViewById(R.id.passwordEditText)
-            confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
-            submitButton = view.findViewById(R.id.submitButton)
-            imageView = view.findViewById(R.id.imageView)
-            val userDao = AppLocalDatabase.db.userDao()
-
-            userDao.getUserById(userId).observe(viewLifecycleOwner, { user ->
-                user?.let {
-                    nameEditText.setText(it.name)
-                    emailEditText.setText(it.email)
-                    phoneNumberEditText.setText(it.phoneNumber)
-                }
-            })
-
-            editImageButton.setOnClickListener {
-                openImagePicker.launch("image/*")
-            }
-
-            submitButton.setOnClickListener {
-                if (validateForm()) {
-                    val name = nameEditText.text.toString()
-                    val email = emailEditText.text.toString()
-                    val phoneNumber = phoneNumberEditText.text.toString()
-                    val password = passwordEditText.text.toString()
-
-                    val modefiedUser = User(
-                        name = name,
-                        email = email,
-                        password = password,
-                        phoneNumber = phoneNumber,
-                        imgUrl = imageUri ?: DEFAULT_IMAGE_URL
-                        )
-
-                    Model.instance.editUserById(userId, modefiedUser) {
-                        Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
-
-                        findNavController().popBackStack()
-                    }
-                }
-            }
-        }
-
         private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
-                println("Selected image URI: $imageView")
+                println("Selected image URI: $uri")
                 imageView?.let {
                     Picasso.get()
                         .load(uri)
@@ -106,6 +69,19 @@
                 }
                 imageUri = uri.toString()
             }
+        }
+
+        private fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
+            auth.fetchSignInMethodsForEmail(email)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        val result = task.result
+                        val signInMethods = result?.signInMethods ?: emptyList()
+                        onComplete(signInMethods.isNotEmpty())
+                    } else {
+                        onComplete(false)
+                    }
+                }
         }
 
         private fun validateForm(): Boolean {
@@ -120,11 +96,196 @@
                 return false
             }
 
+            if (phoneNumber.length != 10) {
+                Toast.makeText(requireContext(), "Phone number must have 10 digits", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            if (password.length < 6) {
+                Toast.makeText(requireContext(), "Password must have at least 6 digits", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
+            if (!email.matches(Regex("[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}"))) {
+                Toast.makeText(requireContext(), "Invalid email format", Toast.LENGTH_SHORT).show()
+                return false
+            }
+
             if (password != confirmPassword) {
                 Toast.makeText(requireContext(), "Passwords do not match", Toast.LENGTH_SHORT).show()
                 return false
             }
 
             return true
+        }
+
+        private fun updateEmailAndPassword(currentUser: LocalUser?, email: String, password: String) {
+            val name = nameEditText.text.toString()
+            val phoneNumber = phoneNumberEditText.text.toString()
+
+            val modifiedUser = User(
+                name = name,
+                email = email,
+                phoneNumber = phoneNumber,
+                imgUrl = imageUri ?: DEFAULT_IMAGE_URL
+            )
+
+            if (email != currentUser?.email) {
+                updateEmail(email) { success ->
+                    if (success) {
+                        updatePassword(password) {
+                            if (it) {
+                                updateUser(modifiedUser)
+                                toggleLoading(false)
+                            } else {
+                                toggleLoading(false)
+                                showErrorMessage("Error updating password")
+                            }
+                        }
+                    } else {
+                        toggleLoading(false)
+                        showErrorMessage("Error updating email")
+                    }
+                }
+            } else {
+                updatePassword(password) {
+                    if (it) {
+                        updateUser(modifiedUser)
+                        toggleLoading(false)
+                    } else {
+                        showErrorMessage("Error updating password")
+                        toggleLoading(false)
+                    }
+                }
+            }
+        }
+
+        private fun updateOnlyPassword(email: String, password: String) {
+            val name = nameEditText.text.toString()
+            val phoneNumber = phoneNumberEditText.text.toString()
+
+            val modifiedUser = User(
+                name = name,
+                email = email,
+                phoneNumber = phoneNumber,
+                imgUrl = imageUri ?: DEFAULT_IMAGE_URL
+            )
+
+            updatePassword(password) {
+                if (it) {
+                    updateUser(modifiedUser)
+                    toggleLoading(false)
+                } else {
+                    toggleLoading(false)
+                    showErrorMessage("Error updating password")
+                }
+            }
+        }
+
+        private fun checkEmailAvailability(email: String, onComplete: (Boolean) -> Unit) {
+            isEmailTaken(email) { isTaken ->
+                onComplete(!isTaken)
+            }
+        }
+
+        private fun updateEmail(email: String, onComplete: (Boolean) -> Unit) {
+            auth.currentUser?.updateEmail(email)
+                ?.addOnSuccessListener {
+                    onComplete(true)
+                }
+                ?.addOnFailureListener {
+                    onComplete(false)
+                }
+        }
+
+        private fun updatePassword(password: String, onComplete: (Boolean) -> Unit) {
+            auth.currentUser?.updatePassword(password)
+                ?.addOnSuccessListener {
+                    onComplete(true)
+                }
+                ?.addOnFailureListener {
+                    onComplete(false)
+                }
+        }
+
+        private fun updateUser(user: User) {
+            Model.instance.editUserById(userId, user) {
+                Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
+                findNavController().popBackStack()
+            }
+        }
+
+        private fun showErrorMessage(message: String) {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
+        }
+
+        private fun toggleLoading(isLoading: Boolean) {
+            editProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+            editButton.isEnabled = !isLoading
+        }
+
+        private fun loadUserImage(imageUrl: String) {
+            if (imageUrl.startsWith("gs://") || imageUrl.startsWith("https://firebasestorage.googleapis.com/")) {
+                firebaseModel.fetchUserImage(imageUrl) { uri ->
+                    uri?.let {
+                        val imageUriString = uri.toString()
+                        Picasso.get()
+                            .load(imageUriString)
+                            .placeholder(R.drawable.avatar)
+                            .into(imageView)
+                    }
+                }
+            } else {
+                Picasso.get()
+                    .load(R.drawable.avatar)
+                    .into(imageView)
+            }
+        }
+
+        private fun setupUI(view: View) {
+            val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
+            nameEditText = view.findViewById(R.id.nameEditText)
+            emailEditText = view.findViewById(R.id.emailEditText)
+            phoneNumberEditText = view.findViewById(R.id.phoneNumberEditText)
+            passwordEditText = view.findViewById(R.id.passwordEditText)
+            confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
+            editButton = view.findViewById(R.id.editButton)
+            editProgressBar = view.findViewById(R.id.editProgressBar)
+            imageView = view.findViewById(R.id.imageView)
+            val userDao = AppLocalDatabase.db.userDao()
+            var currentUser: LocalUser? = null
+
+            userDao.getUserById(userId).observe(viewLifecycleOwner) { user ->
+                user?.let {
+                    nameEditText.setText(it.name)
+                    emailEditText.setText(it.email)
+                    phoneNumberEditText.setText(it.phoneNumber)
+                    loadUserImage(it.imgUrl)
+                    currentUser = it
+                }
+            }
+
+            editImageButton.setOnClickListener {
+                openImagePicker.launch("image/*")
+            }
+
+            editButton.setOnClickListener {
+                toggleLoading(true)
+
+                if (validateForm()) {
+                    val email = emailEditText.text.toString()
+                    val password = passwordEditText.text.toString()
+
+                    checkEmailAvailability(email) { isAvailable ->
+                        if (isAvailable) {
+                            updateEmailAndPassword(currentUser, email, password)
+                        } else {
+                            updateOnlyPassword(email, password)
+                        }
+                    }
+                } else {
+                    toggleLoading(false)
+                }
+            }
         }
     }
