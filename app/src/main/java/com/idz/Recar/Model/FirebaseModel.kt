@@ -1,6 +1,7 @@
 package com.idz.Recar.Model
 
 import android.content.ContentValues.TAG
+import android.net.Uri
 import android.util.Log
 import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestoreSettings
@@ -11,6 +12,8 @@ import com.google.firebase.ktx.Firebase
 
 import androidx.lifecycle.LifecycleOwner
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.storage.FirebaseStorage
+import com.idz.Recar.Model.User.Companion.DEFAULT_IMAGE_URL
 
 class FirebaseModel {
 
@@ -84,27 +87,74 @@ class FirebaseModel {
             }
     }
 
+    fun fetchUserImage(imageUrl: String?, callback: (Uri?) -> Unit) {
+        if (imageUrl.isNullOrEmpty()) {
+            callback(null)
+            return
+        }
+
+        val storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(imageUrl)
+        storageRef.downloadUrl
+            .addOnSuccessListener { uri ->
+                callback(uri)
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error fetching user image: $exception")
+                callback(null)
+            }
+    }
+
+    private fun uploadUserImage(userId: String, imageUri: String?, callback: (String?) -> Unit) {
+        if (!imageUri.isNullOrEmpty()) {
+            val storageRef = FirebaseStorage.getInstance().reference
+            val imagesRef = storageRef.child("profile_images/$userId")
+
+            val uploadTask = imagesRef.putFile(Uri.parse(imageUri))
+            uploadTask.addOnSuccessListener { _ ->
+                imagesRef.downloadUrl.addOnSuccessListener { uri ->
+                    val imageUrl = uri.toString()
+                    callback(imageUrl)
+                }.addOnFailureListener { e ->
+                    Log.e(TAG, "Error getting download URL: $e")
+                    callback(null)
+                }
+            }.addOnFailureListener { e ->
+                Log.e(TAG, "Error uploading image: $e")
+                callback(null)
+            }
+        } else {
+            callback(null)
+        }
+    }
+
     fun addUser(user: User, uid: String, callback: () -> Unit) {
-        db.collection(USERS_COLLECTION_PATH)
-            .document(uid).set(user.json)
+        val userRef = db.collection(USERS_COLLECTION_PATH).document(uid)
+
+        uploadUserImage(uid, user.imgUrl) { imageUrl ->
+            user.imgUrl = imageUrl ?: DEFAULT_IMAGE_URL
+            userRef.set(user.json)
             .addOnSuccessListener {
                 callback()
             }
             .addOnFailureListener { e ->
                 Log.e(TAG, "Error adding document", e)
             }
+        }
     }
 
     fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
-        db.collection(USERS_COLLECTION_PATH)
-            .document(userId)
-            .set(newUser.json)
-            .addOnSuccessListener {
-                callback()
-            }
-            .addOnFailureListener { e ->
-                Log.e(TAG, "Error editing user document", e)
-            }
+        val userRef = db.collection(USERS_COLLECTION_PATH).document(userId)
+
+        uploadUserImage(userId, newUser.imgUrl) { imageUrl ->
+            newUser.imgUrl = imageUrl ?: DEFAULT_IMAGE_URL
+            userRef.set(newUser.json)
+                .addOnSuccessListener {
+                    callback()
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error editing user document", e)
+                }
+        }
     }
 }
 

@@ -21,6 +21,7 @@
     import androidx.navigation.fragment.findNavController
     import com.google.android.material.button.MaterialButton
     import com.google.firebase.auth.FirebaseAuth
+    import com.idz.Recar.Model.FirebaseModel
     import com.idz.Recar.dao.User as LocalUser
     import com.idz.Recar.Model.User
     import java.util.concurrent.CompletableFuture
@@ -39,6 +40,7 @@
         private lateinit var userId: String
         private lateinit var editButton: MaterialButton
         private lateinit var editProgressBar: ProgressBar
+        private val firebaseModel = FirebaseModel()
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
@@ -222,6 +224,24 @@
             editButton.isEnabled = !isLoading
         }
 
+        private fun loadUserImage(imageUrl: String) {
+            if (imageUrl.startsWith("gs://") || imageUrl.startsWith("https://firebasestorage.googleapis.com/")) {
+                firebaseModel.fetchUserImage(imageUrl) { uri ->
+                    uri?.let {
+                        val imageUriString = uri.toString()
+                        Picasso.get()
+                            .load(imageUriString)
+                            .placeholder(R.drawable.avatar)
+                            .into(imageView)
+                    }
+                }
+            } else {
+                Picasso.get()
+                    .load(R.drawable.avatar)
+                    .into(imageView)
+            }
+        }
+
         private fun setupUI(view: View) {
             val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
             nameEditText = view.findViewById(R.id.nameEditText)
@@ -240,6 +260,7 @@
                     nameEditText.setText(it.name)
                     emailEditText.setText(it.email)
                     phoneNumberEditText.setText(it.phoneNumber)
+                    loadUserImage(it.imgUrl)
                     currentUser = it
                 }
             }
