@@ -1,5 +1,6 @@
 package com.idz.Recar.Model
 
+import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
@@ -155,6 +156,19 @@ class FirebaseModel {
                     Log.e(TAG, "Error editing user document", e)
                 }
         }
+    }
+
+    fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
+        db.collection(USERS_COLLECTION_PATH)
+            .whereEqualTo("email", email)
+            .get()
+            .addOnSuccessListener { documents ->
+                onComplete(!documents.isEmpty)
+            }
+            .addOnFailureListener { exception ->
+                Log.e(TAG, "Error checking if email is taken: $exception")
+                onComplete(false)
+            }
     }
 }
 

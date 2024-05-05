@@ -1,6 +1,8 @@
 package com.idz.Recar.Modules.Register
 
+import android.content.ContentValues
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -19,6 +21,7 @@ import androidx.navigation.Navigation
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.auth.FirebaseAuth
+import com.idz.Recar.Model.FirebaseModel
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.Student
 import com.idz.Recar.Model.User
@@ -26,6 +29,7 @@ import com.idz.Recar.Modules.Login.LoginDirections
 import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
+import com.squareup.picasso.Callback
 import com.squareup.picasso.Picasso
 import java.util.concurrent.CompletableFuture
 
@@ -52,7 +56,6 @@ class Register : Fragment() {
 
     private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
-            println("Selected image URI: $uri")
             profileImage?.let {
                 Picasso.get()
                     .load(uri)
@@ -72,19 +75,6 @@ class Register : Fragment() {
         loginLink.setOnClickListener(action)
         setupUI(view)
         return view
-    }
-
-    private fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
-        auth.fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val result = task.result
-                    val signInMethods = result?.signInMethods ?: emptyList()
-                    onComplete(signInMethods.isNotEmpty())
-                } else {
-                    onComplete(false)
-                }
-            }
     }
 
     private fun validateForm(): Boolean {
@@ -136,6 +126,7 @@ class Register : Fragment() {
         confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
         registerButton = view.findViewById(R.id.registerButton)
         registerProgressBar = view.findViewById(R.id.registerProgressBar)
+        profileImage = view.findViewById(R.id.profileImage)
 
         editImageButton.setOnClickListener {
             openImagePicker.launch("image/*")
@@ -147,7 +138,7 @@ class Register : Fragment() {
             if (validateForm()) {
                 val email = emailEditText.text.toString()
 
-                isEmailTaken(email) { isTaken ->
+                FirebaseModel().isEmailTaken(email) { isTaken ->
                     if (!isTaken) {
                         val name = nameEditText.text.toString()
                         val phoneNumber = phoneNumberEditText.text.toString()
