@@ -1,7 +1,9 @@
 package com.idz.Recar.Modules.Login
 
+import android.content.ContentValues
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +23,7 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.idz.Recar.Model.FirebaseModel
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.User
 import com.idz.Recar.Modules.Register.DEFAULT_IMAGE_URL
@@ -143,19 +146,6 @@ class Login : Fragment() {
         }
     }
 
-    private fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
-        auth.fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val result = task.result
-                    val signInMethods = result?.signInMethods ?: emptyList()
-                    onComplete(signInMethods.isNotEmpty())
-                } else {
-                    onComplete(false)
-                }
-            }
-    }
-
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential)
@@ -165,7 +155,7 @@ class Login : Fragment() {
                     val firebaseUser = auth.currentUser
                     val userId = firebaseUser?.uid ?: ""
 
-                    isEmailTaken(email) { isTaken ->
+                    FirebaseModel().isEmailTaken(email) { isTaken ->
                         if (!isTaken) {
                             val name = account.displayName ?: ""
                             val imageUrl = account.photoUrl.toString()
