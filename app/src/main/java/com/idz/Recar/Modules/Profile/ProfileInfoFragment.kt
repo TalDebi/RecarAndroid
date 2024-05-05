@@ -10,19 +10,24 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.navigation.Navigation
+import com.google.android.material.imageview.ShapeableImageView
+import com.google.firebase.auth.FirebaseAuth
+import com.idz.Recar.Model.FirebaseModel
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.idz.Recar.dao.AppLocalDatabase
+import com.squareup.picasso.Picasso
 
 class ProfileInfoFragment : Fragment() {
 
-    private lateinit var userId: String // User ID to load user details
+    private lateinit var userId: String
+    private var imageView: ShapeableImageView? = null
+    private val firebaseModel = FirebaseModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
 
-        // Retrieve the user ID from SharedPreferences
         userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
     }
 
@@ -35,23 +40,46 @@ class ProfileInfoFragment : Fragment() {
         return view
     }
 
+    private fun loadUserImage(imageUrl: String) {
+        if (imageUrl.startsWith("gs://") || imageUrl.startsWith("https://firebasestorage.googleapis.com/")) {
+            firebaseModel.fetchUserImage(imageUrl) { uri ->
+                uri?.let {
+                    val imageUriString = uri.toString()
+                    Picasso.get()
+                        .load(imageUriString)
+                        .placeholder(R.drawable.avatar)
+                        .into(imageView)
+                }
+            }
+        } else {
+            Picasso.get()
+                .load(R.drawable.avatar)
+                .into(imageView)
+        }
+    }
+
     private fun setupUI(view: View) {
         val userDao = AppLocalDatabase.db.userDao()
+        imageView = view.findViewById(R.id.imageView)
 
-        // Fetch user details based on the user ID
         userDao.getUserById(userId).observe(viewLifecycleOwner, Observer { user ->
-            // Populate the UI with user details
             user?.let {
                 view.findViewById<TextView>(R.id.name).text = it.name
                 view.findViewById<TextView>(R.id.email).text = it.email
                 view.findViewById<TextView>(R.id.phoneNumber).text = it.phoneNumber
+                loadUserImage(it.imgUrl)
             }
         })
 
-        // Navigate to the profile edit fragment when the edit profile button is clicked
         val editProfileButton: TextView = view.findViewById(R.id.name)
-        val action = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
-        editProfileButton.setOnClickListener { Navigation.findNavController(view).navigate(action) }
+        val actionNavigateToEdit = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
+        editProfileButton.setOnClickListener { Navigation.findNavController(view).navigate(actionNavigateToEdit) }
+        val logoutButton: TextView = view.findViewById(R.id.logoutButton)
+        val actionNavigateToLogin = ProfileInfoFragmentDirections.actionProfileInfoFragmentToLoginFragment()
+        logoutButton.setOnClickListener {
+            FirebaseAuth.getInstance().signOut()
+            Navigation.findNavController(view).navigate(actionNavigateToLogin)
+        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {

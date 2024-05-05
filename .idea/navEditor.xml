@@ -113,6 +113,11 @@
                         </option>
                         <option name="myPositions">
                           <map>
+                            <entry key="action_profileInfoFragment_to_loginFragment">
+                              <value>
+                                <LayoutPositions />
+                              </value>
+                            </entry>
                             <entry key="action_profileInfoFragment_to_profileEditFragment">
                               <value>
                                 <LayoutPositions />

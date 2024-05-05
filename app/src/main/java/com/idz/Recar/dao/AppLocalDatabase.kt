@@ -8,7 +8,7 @@ import com.idz.Recar.Model.Car
 import com.idz.Recar.Model.Student
 import com.idz.Recar.base.MyApplication
 
-@Database(entities = [Student::class, Car::class, User::class], version = 5)
+@Database(entities = [Student::class, Car::class, User::class], version = 6)
 @TypeConverters(FieldValueConverter::class)
 abstract class AppLocalDbRepository : RoomDatabase() {
     abstract fun studentDao(): StudentDao
