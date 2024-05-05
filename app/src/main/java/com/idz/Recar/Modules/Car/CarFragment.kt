@@ -7,20 +7,15 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.toolbox.JsonArrayRequest
 import com.google.android.material.carousel.CarouselLayoutManager
-import com.google.android.material.carousel.FullScreenCarouselStrategy
 import com.google.android.material.chip.Chip
 import com.google.android.material.chip.ChipGroup
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
 import com.idz.Recar.Model.Car
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Modules.Car.Adapter.ImageAdapter
@@ -31,7 +26,7 @@ import com.idz.Recar.databinding.FragmentCarPageBinding
 import org.json.JSONObject
 
 
-class Car : Fragment() {
+class CarFragment : Fragment() {
     private var tvModel: TextView? = null
     private var tvMake: TextView? = null
     private var tvPrice: TextView? = null
@@ -40,7 +35,6 @@ class Car : Fragment() {
     private var btnEdit: ImageButton? = null
     private var rvCarousel: RecyclerView? = null
     private var cg: ChipGroup? = null
-    private var car: Car? = null
     private var carId: String? = "d0OsfJnXVGIq7AWXV3il"
     private var ninjaBaseUrl = "https://api.api-ninjas.com/v1/cars?limit=1&"
     private var _binding: FragmentCarPageBinding? = null
@@ -146,7 +140,7 @@ class Car : Fragment() {
 
         cg?.let {
             for (key in keys) {
-                context?.let{cntx ->
+                context?.let { cntx ->
                     var chip = Chip(cntx)
                     var label = key.replace("_", " ")
                     var value = info.getString(key)
@@ -164,7 +158,6 @@ class Car : Fragment() {
         super.onStop()
         findNavController().popBackStack(R.id.action_global_searchFragment, false)
     }
-
 
 
 }

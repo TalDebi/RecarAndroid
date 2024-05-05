@@ -244,6 +244,12 @@ class Model private constructor() {
         }
     }
 
+    fun addCar(car: Car, callback: () -> Unit) {
+        firebaseModel.addCar(car) {
+            callback()
+        }
+    }
+
     fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
         firebaseModel.editUserById(userId, newUser) {
             refreshAllUsers()

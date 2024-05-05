@@ -23,7 +23,7 @@ class FieldValueConverter {
         return null
     }
     @TypeConverter
-    fun fromStringList(value: ArrayList<String>): String {
+    fun fromStringList(value: MutableList<String>): String {
         val gson = Gson()
         val type = object : TypeToken<ArrayList<String>>() {}.type
         val a = gson.toJson(value, type)
@@ -31,7 +31,7 @@ class FieldValueConverter {
     }
 
     @TypeConverter
-    fun toStringList(value: String): ArrayList<String> {
+    fun toStringList(value: String): MutableList<String> {
         val gson = Gson()
         val type = object : TypeToken<ArrayList<String>>() {}.type
         return gson.fromJson(value, type)

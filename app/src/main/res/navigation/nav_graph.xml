@@ -16,7 +16,7 @@
         android:id="@+id/action_loginFragment_to_studentsFragment"
         app:destination="@id/studentsFragment"
         app:popUpTo="@+id/nav_graph"
-        app:popUpToInclusive="true"/>
+        app:popUpToInclusive="true" />
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.idz.Recar.Modules.Register.Register"
@@ -28,7 +28,10 @@
         android:id="@+id/action_registerFragment_to_studentsFragment"
         app:destination="@id/studentsFragment"
         app:popUpTo="@+id/nav_graph"
-        app:popUpToInclusive="true"/>
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_carFormFragment_to_studentsFragment"
+        app:destination="@id/studentsFragment" />
     <fragment
         android:id="@+id/studentsFragment"
         android:name="com.idz.Recar.Modules.Students.StudentsFragment"
@@ -52,7 +55,9 @@
         android:name="com.idz.Recar.Modules.AddStudent.AddStudentFragment"
         android:label="Add Student"
         tools:layout="@layout/fragment_add_student" />
-    <action android:id="@+id/action_global_addStudentFragment" app:destination="@id/addStudentFragment" />
+    <action
+        android:id="@+id/action_global_addStudentFragment"
+        app:destination="@id/addStudentFragment" />
     <fragment
         android:id="@+id/profileInfoFragment"
         android:name="com.idz.Recar.Modules.Profile.ProfileInfoFragment"
@@ -62,8 +67,7 @@
             android:id="@+id/action_profileInfoFragment_to_loginFragment"
             app:destination="@id/loginFragment"
             app:popUpTo="@+id/nav_graph"
-            app:popUpToInclusive="true"
-            />
+            app:popUpToInclusive="true" />
         <action
             android:id="@+id/action_profileInfoFragment_to_profileEditFragment"
             app:destination="@id/profileEditFragment" />
@@ -72,9 +76,9 @@
         android:id="@+id/profileEditFragment"
         android:name="com.idz.Recar.Modules.Profile.ProfileEditFragment"
         android:label="ProfileEditFragment">
-    <action
-        android:id="@+id/action_profileEditFragment_to_profileInfoFragment"
-        app:destination="@id/profileInfoFragment" />
+        <action
+            android:id="@+id/action_profileEditFragment_to_profileInfoFragment"
+            app:destination="@id/profileInfoFragment" />
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
@@ -85,7 +89,16 @@
         app:destination="@id/searchFragment" />
     <fragment
         android:id="@+id/currCarFragment"
-        android:name="com.idz.Recar.Modules.Car.Car"
+        android:name="com.idz.Recar.Modules.Car.CarFragment"
         android:label="CarFragment" />
-    <action android:id="@+id/action_global_currCarFragment" app:destination="@id/currCarFragment" />
+    <action
+        android:id="@+id/action_global_currCarFragment"
+        app:destination="@id/currCarFragment" />
+    <fragment
+        android:id="@+id/carFormFragment"
+        android:name="com.idz.Recar.Modules.Car.CarFormFragment"
+        android:label="carFormFragment" />
+    <action
+        android:id="@+id/action_global_carFormFragment"
+        app:destination="@id/carFormFragment" />
 </navigation>

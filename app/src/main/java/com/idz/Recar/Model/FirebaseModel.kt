@@ -8,9 +8,6 @@ import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
 import com.google.firebase.ktx.Firebase
-
-import androidx.lifecycle.LifecycleOwner
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.idz.Recar.Model.User.Companion.DEFAULT_IMAGE_URL
 
@@ -194,13 +191,24 @@ class FirebaseModel {
         uploadUserImage(uid, user.imgUrl) { imageUrl ->
             user.imgUrl = imageUrl ?: DEFAULT_IMAGE_URL
             userRef.set(user.json)
+                .addOnSuccessListener {
+                    callback()
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error adding document", e)
+                }
+        }
+    }
+
+    fun addCar(car: Car, callback: () -> Unit) {
+        db.collection(CARS_COLLECTION_PATH)
+            .document(car.id)
+            .set(car.json)
             .addOnSuccessListener {
                 callback()
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.e(TAG, "Error adding document", e)
             }
-        }
     }
 
     fun editUserById(userId: String, newUser: User, callback: () -> Unit) {

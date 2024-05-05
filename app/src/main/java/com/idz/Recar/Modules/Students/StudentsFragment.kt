@@ -69,7 +69,7 @@ class StudentsFragment : Fragment() {
         studentsRcyclerView?.adapter = adapter
 
         val addStudentButton: ImageButton = view.findViewById(R.id.ibtnStudentsFragmentAddStudent)
-        val action = Navigation.createNavigateOnClickListener(StudentsFragmentDirections.actionGlobalAddStudentFragment())
+        val action = Navigation.createNavigateOnClickListener(StudentsFragmentDirections.actionGlobalCarFormFragment())
         addStudentButton.setOnClickListener(action)
 
         viewModel.students?.observe(viewLifecycleOwner) {

@@ -9,24 +9,24 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
-import com.bumptech.glide.Glide
-import com.firebase.ui.storage.images.FirebaseImageLoader
+
 import com.google.android.gms.tasks.OnFailureListener
 import com.google.android.gms.tasks.OnSuccessListener
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.storage.ktx.storage
+
 import com.idz.Recar.R
 import com.idz.Recar.base.FireBaseStorage
 import com.squareup.picasso.Picasso
 
 
-class ImageAdapter(arrayList: ArrayList<String>) :
+class ImageAdapter(arrayList: List<String>, isLocal: Boolean = false) :
     RecyclerView.Adapter<ImageAdapter.ViewHolder>() {
-    var arrayList: ArrayList<String>
+    var arrayList: List<String>
     var storage = FireBaseStorage.getInstance().storage
+    var isLocal = false
 
     init {
         this.arrayList = arrayList
+        this.isLocal = isLocal
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -41,19 +41,24 @@ class ImageAdapter(arrayList: ArrayList<String>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        var load = arrayList[position].let {
+        if (isLocal) {
+            Picasso.get().load(arrayList[position]).placeholder(holder.loader)
+                .into(holder.imageView)
 
-            storage.getReferenceFromUrl(it)
+        } else {
+            var load = arrayList[position].let {
+
+                storage.getReferenceFromUrl(it)
+
+            }
+
+            load.getDownloadUrl()
+                .addOnSuccessListener(OnSuccessListener<Uri> { uri ->
+                    Picasso.get().load(uri.toString()).placeholder(holder.loader)
+                        .into(holder.imageView)
+                }).addOnFailureListener(OnFailureListener { })
 
         }
-
-        load.getDownloadUrl()
-            .addOnSuccessListener(OnSuccessListener<Uri> { uri ->
-                Picasso.get().load(uri.toString()).placeholder(holder.loader).into(holder.imageView)
-            }).addOnFailureListener(OnFailureListener { })
-
-//        Glide.with(holder.context).load(load).placeholder(holder.loader)
-//            .into(holder.imageView)
 
 
     }

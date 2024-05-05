@@ -2,12 +2,11 @@ package com.idz.Recar.Model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.google.firebase.firestore.FieldValue
 
 @Entity
 class Car(
     @PrimaryKey val id: String,
-    val imageUrls: ArrayList<String>,
+    val imageUrls: MutableList<String>,
     val make: String,
     val model: String,
     val year: Long,
