@@ -12,6 +12,11 @@ class FieldValueConverter {
             timestamp.toDate().time
         }
     }
+
+    @TypeConverter
+    fun toFieldValue(milliseconds: Long?): FieldValue? {
+        return null
+    }
 }
 
 

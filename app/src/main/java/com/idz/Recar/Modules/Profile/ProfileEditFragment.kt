@@ -220,11 +220,16 @@
                 val email = emailEditText.text.toString()
                 val password = passwordEditText.text.toString()
 
-                checkEmailAvailability(email) { isAvailable ->
-                    if (isAvailable) {
-                        handleEmailAndPasswordUpdate(currentUser, email, password)
-                    } else {
-                        handlePasswordUpdate(email, password)
+                if (email == currentUser?.email) {
+                    handleEmailAndPasswordUpdate(currentUser, email, password)
+                } else {
+                    checkEmailAvailability(email) { isAvailable ->
+                        if (isAvailable) {
+                            handleEmailAndPasswordUpdate(currentUser, email, password)
+                        } else {
+                            toggleLoading(false)
+                            Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             } else {
@@ -250,6 +255,7 @@
                     emailEditText.setText(it.email)
                     phoneNumberEditText.setText(it.phoneNumber)
                     loadUserImage(it.imgUrl)
+                    imageUri = it.imgUrl
                     currentUser = it
                 }
             }
