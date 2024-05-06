@@ -2,7 +2,6 @@ package com.idz.Recar
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -10,8 +9,6 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.google.android.material.bottomnavigation.BottomNavigationView
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
 
 class MainActivity : AppCompatActivity() {
 
@@ -46,10 +43,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         super.onCreateOptionsMenu(menu)
-        Log.d("MainActivity", "onCreateOptionsMenu called")
         val currentDestination = navController?.currentDestination
         val isLoginFragment = currentDestination?.id == R.id.loginFragment
-        Log.d("MainActivity", "Is Login Fragment: $isLoginFragment")
         if (!isLoginFragment) {
             menuInflater.inflate(R.menu.menu, menu)
         }
