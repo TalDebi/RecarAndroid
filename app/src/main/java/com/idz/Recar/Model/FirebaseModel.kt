@@ -1,6 +1,5 @@
 package com.idz.Recar.Model
 
-import android.content.ContentValues
 import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
@@ -8,11 +7,8 @@ import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
-import com.google.firebase.firestore.persistentCacheSettings
 import com.google.firebase.ktx.Firebase
 import okhttp3.Request
-import androidx.lifecycle.LifecycleOwner
-import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.idz.Recar.Model.User.Companion.DEFAULT_IMAGE_URL
 import kotlinx.coroutines.Dispatchers

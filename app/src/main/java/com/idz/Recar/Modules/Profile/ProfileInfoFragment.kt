@@ -74,6 +74,7 @@ class ProfileInfoFragment : Fragment() {
         val editProfileButton: TextView = view.findViewById(R.id.name)
         val actionNavigateToEdit = ProfileInfoFragmentDirections.actionProfileInfoFragmentToProfileEditFragment()
         editProfileButton.setOnClickListener { Navigation.findNavController(view).navigate(actionNavigateToEdit) }
+
         val logoutButton: TextView = view.findViewById(R.id.logoutButton)
         val actionNavigateToLogin = ProfileInfoFragmentDirections.actionProfileInfoFragmentToLoginFragment()
         logoutButton.setOnClickListener {

@@ -7,17 +7,14 @@ import com.google.firebase.firestore.FieldValue
 class FieldValueConverter {
     @TypeConverter
     fun fromFieldValue(value: FieldValue?): Long? {
-        // Convert FieldValue to milliseconds since the Unix epoch
         return value?.let {
-            val timestamp = Timestamp.now() // Create a Timestamp representing current time
-            timestamp.toDate().time // Convert Timestamp to milliseconds
+            val timestamp = Timestamp.now()
+            timestamp.toDate().time
         }
     }
 
     @TypeConverter
     fun toFieldValue(milliseconds: Long?): FieldValue? {
-        // Convert milliseconds to FieldValue (not supported)
-        // You may need additional logic here based on your requirements
         return null
     }
 }
