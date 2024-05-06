@@ -1,11 +1,9 @@
 package com.idz.Recar.Model
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.idz.Recar.dao.AppLocalDatabase
-import com.idz.Recar.dao.CarDao
 import com.idz.Recar.dao.CarDao.Companion.MAX_MILEAGE
 import com.idz.Recar.dao.CarDao.Companion.MAX_PRICE
 import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
@@ -34,7 +32,6 @@ class Model private constructor() {
         MutableLiveData(LoadingState.LOADED)
     private val usersList: LiveData<MutableList<LocalUser>> = database.userDao().getAll()
     private val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
-    val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
     private val currCar: LiveData<Car>? = null
 
     companion object {

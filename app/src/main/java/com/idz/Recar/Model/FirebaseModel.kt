@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 
 class FirebaseModel {
@@ -44,7 +45,7 @@ class FirebaseModel {
         color: String?,
         model: String?,
         make: String?,
-        owner:String?,
+        owner: String?,
         callback: (MutableList<Car>) -> Unit
     ) {
         var query = db.collection(CARS_COLLECTION_PATH)
@@ -101,7 +102,6 @@ class FirebaseModel {
     }
 
 
-
     fun getAllUsers(callback: (List<Pair<User, String>>) -> Unit) {
         db.collection(USERS_COLLECTION_PATH)
             .addSnapshotListener { snapshot, exception ->
@@ -126,7 +126,6 @@ class FirebaseModel {
                 }
             }
     }
-
 
 
     fun fetchUserImage(imageUrl: String?, callback: (Uri?) -> Unit) {
@@ -273,6 +272,7 @@ class FirebaseModel {
                 Log.e(TAG, "Error checking if email is taken: $exception")
                 onComplete(false)
             }
+
     }
 
     fun deleteCarById(id: String) {
