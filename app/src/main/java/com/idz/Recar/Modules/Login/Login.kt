@@ -20,12 +20,15 @@ import com.google.android.gms.common.api.ApiException
 import com.google.android.material.button.MaterialButton
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
+import com.idz.Recar.Model.FirebaseModel
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.User
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 
 const val RC_SIGN_IN: Int = 1
+const val SERVER_CLIENT_ID: String = "778157402602-8h29nsc2dvddoiv85tsmhb5s6apm9qr7.apps.googleusercontent.com"
+const val PHONE_NUMBER_PLACEHOLDER: String = "0000000000"
 
 class Login : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -42,6 +45,11 @@ class Login : Fragment() {
         setHasOptionsMenu(true)
     }
 
+    private fun setupUI(view: View) {
+        emailEditText = view.findViewById(R.id.emailEditText)
+        passwordEditText = view.findViewById(R.id.passwordEditText)
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -55,13 +63,16 @@ class Login : Fragment() {
             val action = LoginDirections.actionLoginFragmentToRegisterFragment()
             navController.navigate(action)
         }
+
         loginButton.setOnClickListener {
             signInWithEmailPassword()
         }
+
         val googleButton: SignInButton = view.findViewById(R.id.loginWithGoogleButton)
         googleButton.setOnClickListener {
             signInWithGoogle()
         }
+
         setupGoogleSignIn()
         setupUI(view)
         return view
@@ -70,6 +81,7 @@ class Login : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val firebaseUser = auth.currentUser
+
         if (firebaseUser != null) {
             val userId = firebaseUser.uid
             SharedPreferencesHelper.saveUserId(requireContext(), userId)
@@ -78,12 +90,16 @@ class Login : Fragment() {
         }
     }
 
+    private fun toggleLoading(isLoading: Boolean) {
+        loginProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        loginButton.isEnabled = !isLoading
+    }
+
     private fun signInWithEmailPassword() {
         val email = emailEditText.text.toString()
         val password = passwordEditText.text.toString()
 
-        loginProgressBar.visibility = View.VISIBLE
-        loginButton.isEnabled = false
+        toggleLoading(true)
 
         if (email.isEmpty() || password.isEmpty()) {
             Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
@@ -107,14 +123,14 @@ class Login : Fragment() {
                 Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT)
                     .show()
             }
-            loginProgressBar.visibility = View.GONE
-            loginButton.isEnabled = true
+
+            toggleLoading(false)
         }
     }
 
     private fun setupGoogleSignIn() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken("778157402602-8h29nsc2dvddoiv85tsmhb5s6apm9qr7.apps.googleusercontent.com")
+            .requestIdToken(SERVER_CLIENT_ID)
             .requestEmail()
             .build()
         mGoogleSignInClient = GoogleSignIn.getClient(requireActivity(), gso)
@@ -122,12 +138,10 @@ class Login : Fragment() {
 
     private fun signInWithGoogle() {
         val signInIntent = mGoogleSignInClient.signInIntent
-        loginProgressBar.visibility = View.VISIBLE
-        loginButton.isEnabled = false
+        toggleLoading(true)
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
-    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == RC_SIGN_IN) {
@@ -145,19 +159,6 @@ class Login : Fragment() {
         }
     }
 
-    private fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
-        auth.fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val result = task.result
-                    val signInMethods = result?.signInMethods ?: emptyList()
-                    onComplete(signInMethods.isNotEmpty())
-                } else {
-                    onComplete(false)
-                }
-            }
-    }
-
     private fun firebaseAuthWithGoogle(account: GoogleSignInAccount) {
         val credential = GoogleAuthProvider.getCredential(account.idToken, null)
         auth.signInWithCredential(credential)
@@ -167,14 +168,15 @@ class Login : Fragment() {
                     val firebaseUser = auth.currentUser
                     val userId = firebaseUser?.uid ?: ""
 
-                    isEmailTaken(email) { isTaken ->
+                    FirebaseModel().isEmailTaken(email) { isTaken ->
                         if (!isTaken) {
                             val name = account.displayName ?: ""
                             val imageUrl = account.photoUrl.toString()
 
-                            val user = User(name, email, "0000000000", imageUrl)
+                            val user = User(name, email, PHONE_NUMBER_PLACEHOLDER, imageUrl)
 
                             Model.instance.addUser(user, userId) {
+                                toggleLoading(false)
                                 SharedPreferencesHelper.saveUserId(requireContext(), userId)
                                 val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                                 navController.navigate(action)
@@ -185,6 +187,7 @@ class Login : Fragment() {
                                 ).show()
                             }
                         } else {
+                            toggleLoading(false)
                             SharedPreferencesHelper.saveUserId(requireContext(), userId)
                             val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                             navController.navigate(action)
@@ -196,16 +199,9 @@ class Login : Fragment() {
                         }
                     }
                 } else {
+                    toggleLoading(false)
                     Toast.makeText(requireContext(), "Login Failed", Toast.LENGTH_SHORT).show()
                 }
-                loginProgressBar.visibility = View.GONE
-                loginButton.isEnabled = true
             }
-    }
-
-
-    private fun setupUI(view: View) {
-        emailEditText = view.findViewById(R.id.emailEditText)
-        passwordEditText = view.findViewById(R.id.passwordEditText)
     }
 }

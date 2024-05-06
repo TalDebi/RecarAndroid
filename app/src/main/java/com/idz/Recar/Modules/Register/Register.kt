@@ -1,6 +1,7 @@
 package com.idz.Recar.Modules.Register
 
 import android.os.Bundle
+import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -12,18 +13,17 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.auth.FirebaseAuth
+import com.idz.Recar.Model.FirebaseModel
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.User
+import com.idz.Recar.Model.User.Companion.DEFAULT_IMAGE_URL
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.squareup.picasso.Picasso
-
-const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
 class Register : Fragment() {
     private lateinit var auth: FirebaseAuth
@@ -46,7 +46,6 @@ class Register : Fragment() {
 
     private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
-            println("Selected image URI: $uri")
             profileImage?.let {
                 Picasso.get()
                     .load(uri)
@@ -66,19 +65,6 @@ class Register : Fragment() {
         loginLink.setOnClickListener(action)
         setupUI(view)
         return view
-    }
-
-    private fun isEmailTaken(email: String, onComplete: (Boolean) -> Unit) {
-        auth.fetchSignInMethodsForEmail(email)
-            .addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    val result = task.result
-                    val signInMethods = result?.signInMethods ?: emptyList()
-                    onComplete(signInMethods.isNotEmpty())
-                } else {
-                    onComplete(false)
-                }
-            }
     }
 
     private fun validateForm(): Boolean {
@@ -121,6 +107,47 @@ class Register : Fragment() {
         registerButton.isEnabled = !isLoading
     }
 
+    private fun handleRegiter() {
+        toggleLoading(true)
+
+        if (validateForm()) {
+            val email = emailEditText.text.toString()
+
+            FirebaseModel().isEmailTaken(email) { isTaken ->
+                if (!isTaken) {
+                    val name = nameEditText.text.toString()
+                    val phoneNumber = phoneNumberEditText.text.toString()
+                    val password = passwordEditText.text.toString()
+
+                    val user = User(name, email, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
+
+                    auth.createUserWithEmailAndPassword(email, password)
+                        .addOnCompleteListener { authTask ->
+                            if (authTask.isSuccessful) {
+                                val firebaseUser = auth.currentUser
+                                val userId = firebaseUser?.uid ?: ""
+
+                                Model.instance.addUser(user, userId) {
+                                    SharedPreferencesHelper.saveUserId(requireContext(), userId)
+                                    navController.navigate(RegisterDirections.actionRegisterFragmentToStudentsFragment())
+                                    toggleLoading(false)
+                                    Toast.makeText(requireContext(), "Successfully Signed Up", Toast.LENGTH_SHORT).show()
+                                }
+                            } else {
+                                toggleLoading(false)
+                                Toast.makeText(requireContext(), authTask.exception?.localizedMessage, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                } else {
+                    Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
+                    toggleLoading(false)
+                }
+            }
+        } else {
+            toggleLoading(false)
+        }
+    }
+
     private fun setupUI(view: View) {
         val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
         nameEditText = view.findViewById(R.id.nameEditText)
@@ -130,50 +157,14 @@ class Register : Fragment() {
         confirmPasswordEditText = view.findViewById(R.id.confirmPasswordEditText)
         registerButton = view.findViewById(R.id.registerButton)
         registerProgressBar = view.findViewById(R.id.registerProgressBar)
+        profileImage = view.findViewById(R.id.profileImage)
 
         editImageButton.setOnClickListener {
             openImagePicker.launch("image/*")
         }
 
         registerButton.setOnClickListener {
-            toggleLoading(true)
-
-            if (validateForm()) {
-                val email = emailEditText.text.toString()
-
-                isEmailTaken(email) { isTaken ->
-                    if (!isTaken) {
-                        val name = nameEditText.text.toString()
-                        val phoneNumber = phoneNumberEditText.text.toString()
-                        val password = passwordEditText.text.toString()
-
-                        val user = User(name, email, phoneNumber, imageUri ?: DEFAULT_IMAGE_URL)
-
-                        auth.createUserWithEmailAndPassword(email, password)
-                            .addOnCompleteListener { authTask ->
-                                if (authTask.isSuccessful) {
-                                    val firebaseUser = auth.currentUser
-                                    val userId = firebaseUser?.uid ?: ""
-
-                                    Model.instance.addUser(user, userId) {
-                                        SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                                        navController.navigate(RegisterDirections.actionRegisterFragmentToMyCarFragment())
-                                        Toast.makeText(requireContext(), "Successfully Signed Up", Toast.LENGTH_SHORT).show()
-                                    }
-                                } else {
-                                    Toast.makeText(requireContext(), authTask.exception?.localizedMessage, Toast.LENGTH_SHORT).show()
-                                }
-
-                                toggleLoading(false)
-                            }
-                    } else {
-                        Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
-                        toggleLoading(false)
-                    }
-                }
-            } else {
-                toggleLoading(false)
-            }
+            handleRegiter()
         }
     }
 

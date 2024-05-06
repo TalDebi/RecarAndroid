@@ -10,20 +10,19 @@
     import android.widget.Toast
     import androidx.activity.result.contract.ActivityResultContracts
     import androidx.fragment.app.Fragment
-    import androidx.navigation.fragment.findNavController
-    import com.google.android.material.button.MaterialButton
     import com.google.android.material.imageview.ShapeableImageView
-    import com.google.firebase.auth.FirebaseAuth
-    import com.idz.Recar.Model.FirebaseModel
     import com.idz.Recar.Model.Model
-    import com.idz.Recar.Model.User
     import com.idz.Recar.R
     import com.idz.Recar.Utils.SharedPreferencesHelper
     import com.idz.Recar.dao.AppLocalDatabase
     import com.squareup.picasso.Picasso
+    import androidx.navigation.fragment.findNavController
+    import com.google.android.material.button.MaterialButton
+    import com.google.firebase.auth.FirebaseAuth
+    import com.idz.Recar.Model.FirebaseModel
     import com.idz.Recar.dao.User as LocalUser
-
-    const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
+    import com.idz.Recar.Model.User
+    import com.idz.Recar.Model.User.Companion.DEFAULT_IMAGE_URL
 
     class ProfileEditFragment : Fragment() {
         private lateinit var auth: FirebaseAuth
@@ -38,11 +37,11 @@
         private lateinit var editButton: MaterialButton
         private lateinit var editProgressBar: ProgressBar
         private val firebaseModel = FirebaseModel()
+        private var currentUser: LocalUser? = null
 
         override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             setHasOptionsMenu(true)
-            // Retrieve the user ID from SharedPreferences
             auth= FirebaseAuth.getInstance()
             userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
         }
@@ -58,7 +57,6 @@
 
         private val openImagePicker = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
             uri?.let {
-                println("Selected image URI: $uri")
                 imageView?.let {
                     Picasso.get()
                         .load(uri)
@@ -116,48 +114,22 @@
             return true
         }
 
-        private fun updateEmailAndPassword(currentUser: LocalUser?, email: String, password: String) {
-            val name = nameEditText.text.toString()
-            val phoneNumber = phoneNumberEditText.text.toString()
-
-            val modifiedUser = User(
-                name = name,
-                email = email,
-                phoneNumber = phoneNumber,
-                imgUrl = imageUri ?: DEFAULT_IMAGE_URL
-            )
-
+        private fun handleEmailAndPasswordUpdate(currentUser: LocalUser?, email: String, password: String) {
             if (email != currentUser?.email) {
                 updateEmail(email) { success ->
                     if (success) {
-                        updatePassword(password) {
-                            if (it) {
-                                updateUser(modifiedUser)
-                                toggleLoading(false)
-                            } else {
-                                toggleLoading(false)
-                                showErrorMessage("Error updating password")
-                            }
-                        }
+                        handlePasswordUpdate(email, password)
                     } else {
                         toggleLoading(false)
                         showErrorMessage("Error updating email")
                     }
                 }
             } else {
-                updatePassword(password) {
-                    if (it) {
-                        updateUser(modifiedUser)
-                        toggleLoading(false)
-                    } else {
-                        showErrorMessage("Error updating password")
-                        toggleLoading(false)
-                    }
-                }
+                handlePasswordUpdate(email, password)
             }
         }
 
-        private fun updateOnlyPassword(email: String, password: String) {
+        private fun handlePasswordUpdate(email: String, password: String) {
             val name = nameEditText.text.toString()
             val phoneNumber = phoneNumberEditText.text.toString()
 
@@ -170,8 +142,9 @@
 
             updatePassword(password) {
                 if (it) {
-                    updateUser(modifiedUser)
-                    toggleLoading(false)
+                    updateUser(modifiedUser) {
+                        toggleLoading(false)
+                    }
                 } else {
                     toggleLoading(false)
                     showErrorMessage("Error updating password")
@@ -205,8 +178,9 @@
                 }
         }
 
-        private fun updateUser(user: User) {
+        private fun updateUser(user: User, onComplete: () -> Unit) {
             Model.instance.editUserById(userId, user) {
+                onComplete()
                 Toast.makeText(requireContext(), "User details updated successfully", Toast.LENGTH_SHORT).show()
                 findNavController().popBackStack()
             }
@@ -239,6 +213,30 @@
             }
         }
 
+        private fun handleEditUser() {
+            toggleLoading(true)
+
+            if (validateForm()) {
+                val email = emailEditText.text.toString()
+                val password = passwordEditText.text.toString()
+
+                if (email == currentUser?.email) {
+                    handleEmailAndPasswordUpdate(currentUser, email, password)
+                } else {
+                    checkEmailAvailability(email) { isAvailable ->
+                        if (isAvailable) {
+                            handleEmailAndPasswordUpdate(currentUser, email, password)
+                        } else {
+                            toggleLoading(false)
+                            Toast.makeText(requireContext(), "Email already taken", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                }
+            } else {
+                toggleLoading(false)
+            }
+        }
+
         private fun setupUI(view: View) {
             val editImageButton: ImageButton = view.findViewById(R.id.editImageButton)
             nameEditText = view.findViewById(R.id.nameEditText)
@@ -250,7 +248,6 @@
             editProgressBar = view.findViewById(R.id.editProgressBar)
             imageView = view.findViewById(R.id.imageView)
             val userDao = AppLocalDatabase.db.userDao()
-            var currentUser: LocalUser? = null
 
             userDao.getUserById(userId).observe(viewLifecycleOwner) { user ->
                 user?.let {
@@ -258,6 +255,7 @@
                     emailEditText.setText(it.email)
                     phoneNumberEditText.setText(it.phoneNumber)
                     loadUserImage(it.imgUrl)
+                    imageUri = it.imgUrl
                     currentUser = it
                 }
             }
@@ -267,22 +265,7 @@
             }
 
             editButton.setOnClickListener {
-                toggleLoading(true)
-
-                if (validateForm()) {
-                    val email = emailEditText.text.toString()
-                    val password = passwordEditText.text.toString()
-
-                    checkEmailAvailability(email) { isAvailable ->
-                        if (isAvailable) {
-                            updateEmailAndPassword(currentUser, email, password)
-                        } else {
-                            updateOnlyPassword(email, password)
-                        }
-                    }
-                } else {
-                    toggleLoading(false)
-                }
+                handleEditUser()
             }
         }
     }

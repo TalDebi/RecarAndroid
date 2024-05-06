@@ -1,8 +1,6 @@
 package com.idz.Recar.Model
 
-import android.os.Looper
 import android.util.Log
-import androidx.core.os.HandlerCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -27,7 +25,6 @@ class Model private constructor() {
         LOADED
     }
 
-
     private val database = AppLocalDatabase.db
     private var executor = Executors.newSingleThreadExecutor()
     private val firebaseModel = FirebaseModel()
@@ -36,6 +33,7 @@ class Model private constructor() {
     val studentsListLoadingState: MutableLiveData<LoadingState> =
         MutableLiveData(LoadingState.LOADED)
     private val usersList: LiveData<MutableList<LocalUser>> = database.userDao().getAll()
+    private val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
     val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
     private val currCar: LiveData<Car>? = null
 
@@ -96,17 +94,12 @@ class Model private constructor() {
         }
     }
 
-
-
-
-    fun refreshAllUsers() {
+    private fun refreshAllUsers() {
         usersListLoadingState.value = LoadingState.LOADING
 
-        // Get all updated records from Firestore since the last update locally
         firebaseModel.getAllUsers() { list ->
             Log.i("TAG", "Firebase returned ${list.size} users")
 
-            // Insert or update records in the local database
             executor.execute {
                 list.forEach { (user, id) ->
                     val localUser = LocalUser(
@@ -120,7 +113,6 @@ class Model private constructor() {
                     database.userDao().insert(localUser)
                 }
 
-                // Update the loading state
                 usersListLoadingState.postValue(LoadingState.LOADED)
             }
         }
