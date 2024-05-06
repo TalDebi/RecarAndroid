@@ -10,11 +10,16 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
 import com.google.firebase.firestore.persistentCacheSettings
 import com.google.firebase.ktx.Firebase
-
+import okhttp3.Request
 import androidx.lifecycle.LifecycleOwner
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.idz.Recar.Model.User.Companion.DEFAULT_IMAGE_URL
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import java.io.IOException
 
 class FirebaseModel {
 
@@ -105,28 +110,80 @@ class FirebaseModel {
             }
     }
 
+    private fun isGoogleAccountUri(uri: String?): Boolean {
+        return uri?.startsWith("https://") ?: false
+    }
+
     private fun uploadUserImage(userId: String, imageUri: String?, callback: (String?) -> Unit) {
         if (!imageUri.isNullOrEmpty()) {
-            val storageRef = FirebaseStorage.getInstance().reference
-            val imagesRef = storageRef.child("profile_images/$userId")
-
-            val uploadTask = imagesRef.putFile(Uri.parse(imageUri))
-            uploadTask.addOnSuccessListener { _ ->
-                imagesRef.downloadUrl.addOnSuccessListener { uri ->
-                    val imageUrl = uri.toString()
+            if (isGoogleAccountUri(imageUri)) {
+                uploadGooglePhotoToFirebase(imageUri) { imageUrl ->
                     callback(imageUrl)
+                }
+            } else {
+                val storageRef = FirebaseStorage.getInstance().reference
+                val imagesRef = storageRef.child("profile_images/$userId")
+
+                val uploadTask = imagesRef.putFile(Uri.parse(imageUri))
+                uploadTask.addOnSuccessListener { _ ->
+                    imagesRef.downloadUrl.addOnSuccessListener { uri ->
+                        Log.e(TAG, uri.toString())
+                        val imageUrl = uri.toString()
+                        callback(imageUrl)
+                    }.addOnFailureListener { e ->
+                        Log.e(TAG, "Error getting download URL: $e")
+                        callback(null)
+                    }
                 }.addOnFailureListener { e ->
-                    Log.e(TAG, "Error getting download URL: $e")
+                    Log.e(TAG, "Error uploading image: $e")
                     callback(null)
                 }
-            }.addOnFailureListener { e ->
-                Log.e(TAG, "Error uploading image: $e")
-                callback(null)
             }
         } else {
             callback(null)
         }
     }
+
+    private fun uploadGooglePhotoToFirebase(photoUrl: String, callback: (String?) -> Unit) {
+        GlobalScope.launch(Dispatchers.IO) {
+            val storageRef = FirebaseStorage.getInstance().reference
+            val fileName = photoUrl.substringAfterLast("/")
+            val imageRef = storageRef.child("profile_images/$fileName")
+
+            val client = OkHttpClient()
+            val request = Request.Builder().url(photoUrl).build()
+
+            try {
+                val response = client.newCall(request).execute()
+                if (!response.isSuccessful) throw IOException("Failed to download photo: $photoUrl")
+
+                val inputStream = response.body?.byteStream()
+
+                if (inputStream != null) {
+                    val uploadTask = imageRef.putStream(inputStream)
+
+                    uploadTask.addOnSuccessListener {
+                        println("Photo uploaded successfully to Firebase Storage")
+                        imageRef.downloadUrl.addOnSuccessListener { uri ->
+                            callback(uri.toString())
+                        }.addOnFailureListener { e ->
+                            callback(null)
+                            println("Error getting download URL: $e")
+                        }
+                        inputStream.close()
+                    }.addOnFailureListener { exception ->
+                        println("Failed to upload photo: $exception")
+                        callback(null)
+                        inputStream.close()
+                    }
+                }
+            } catch (e: IOException) {
+                e.printStackTrace()
+                callback(null)
+            }
+        }
+    }
+
 
     fun addUser(user: User, uid: String, callback: () -> Unit) {
         val userRef = db.collection(USERS_COLLECTION_PATH).document(uid)
