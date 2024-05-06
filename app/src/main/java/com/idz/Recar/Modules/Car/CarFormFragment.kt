@@ -1,7 +1,5 @@
 package com.idz.Recar.Modules.Car
 
-import android.icu.text.NumberFormat
-import android.icu.util.Currency
 import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater

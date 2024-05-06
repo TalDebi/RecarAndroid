@@ -25,8 +25,6 @@ import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.idz.Recar.base.VollyQueue
 import com.idz.Recar.dao.AppLocalDatabase
 import com.idz.Recar.databinding.FragmentCarPageBinding
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import org.json.JSONException
 import org.json.JSONObject
 

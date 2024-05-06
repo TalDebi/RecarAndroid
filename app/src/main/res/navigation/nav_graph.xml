@@ -32,32 +32,8 @@
     <action
         android:id="@+id/action_carFormFragment_to_myCarFragment"
         app:destination="@id/myCarFragment" />
-    <fragment
-        android:id="@+id/studentsFragment"
-        android:name="com.idz.Recar.Modules.Students.StudentsFragment"
-        android:label="Students List"
-        tools:layout="@layout/fragment_students">
-        <action
-            android:id="@+id/action_studentsFragment_to_blueFragment"
-            app:destination="@id/blueFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/blueFragment"
-        android:name="com.idz.Recar.BlueFragment"
-        android:label="Blue Fragment"
-        tools:layout="@layout/fragment_blue">
-        <argument
-            android:name="TITLE"
-            app:argType="string" />
-    </fragment>
-    <fragment
-        android:id="@+id/addStudentFragment"
-        android:name="com.idz.Recar.Modules.AddStudent.AddStudentFragment"
-        android:label="Add Student"
-        tools:layout="@layout/fragment_add_student" />
-    <action
-        android:id="@+id/action_global_addStudentFragment"
-        app:destination="@id/addStudentFragment" />
+
+
     <fragment
         android:id="@+id/profileInfoFragment"
         android:name="com.idz.Recar.Modules.Profile.ProfileInfoFragment"

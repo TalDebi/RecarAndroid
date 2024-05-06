@@ -17,14 +17,7 @@ import com.idz.Recar.Model.Model
 import com.idz.Recar.Modules.Search.Adapter.CarResultRecyclerAdapter
 import com.idz.Recar.Modules.Search.Adapter.OnItemClickListener
 import com.idz.Recar.Modules.Search.ResultsViewModel
-import com.idz.Recar.Modules.Search.SearchFragmentDirections
 import com.idz.Recar.Utils.SharedPreferencesHelper
-import com.idz.Recar.dao.CarDao.Companion.MAX_MILEAGE
-import com.idz.Recar.dao.CarDao.Companion.MAX_PRICE
-import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
-import com.idz.Recar.dao.CarDao.Companion.MIN_MILEAGE
-import com.idz.Recar.dao.CarDao.Companion.MIN_PRICE
-import com.idz.Recar.dao.CarDao.Companion.MIN_YEAR
 import com.idz.Recar.databinding.FragmentMyCarsBinding
 
 
@@ -43,7 +36,7 @@ class MyCarsFragment : Fragment() {
     private val binding get() = _binding!!
 
 
-    private fun setupUI(view: View) {
+    private fun setupUI() {
 
 
         progressBar = binding.progressBar
@@ -58,14 +51,14 @@ class MyCarsFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
 
         _binding = FragmentMyCarsBinding.inflate(inflater, container, false)
         val view = binding.root
         // Inflate the layout for this fragment
-        setupUI(view)
-        setResultList(view)
+        setupUI()
         userId = SharedPreferencesHelper.getUserId(requireContext()) ?: ""
+        setResultList(view)
 
         return view
     }
@@ -92,7 +85,8 @@ class MyCarsFragment : Fragment() {
                 Log.i("TAG", "Cars Recycle adapter: Position clicked $position")
                 val result = viewModel.results?.value?.get(position)
                 result?.let {
-                    val action = MyCarsFragmentDirections.actionMyCarFragmentToCarFragment(result.id)
+                    val action =
+                        MyCarsFragmentDirections.actionMyCarFragmentToCarFragment(result.id)
                     view.findNavController().navigate(action)
                 }
             }

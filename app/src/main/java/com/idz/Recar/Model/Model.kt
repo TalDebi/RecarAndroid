@@ -7,17 +7,17 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.idz.Recar.dao.AppLocalDatabase
+import com.idz.Recar.dao.CarDao
+import com.idz.Recar.dao.CarDao.Companion.MAX_MILEAGE
+import com.idz.Recar.dao.CarDao.Companion.MAX_PRICE
+import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
+import com.idz.Recar.dao.CarDao.Companion.MIN_MILEAGE
+import com.idz.Recar.dao.CarDao.Companion.MIN_PRICE
+import com.idz.Recar.dao.CarDao.Companion.MIN_YEAR
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 import com.idz.Recar.dao.User as LocalUser
-import com.idz.Recar.dao.CarDao
-import com.idz.Recar.dao.CarDao.Companion.MIN_YEAR
-import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
-import com.idz.Recar.dao.CarDao.Companion.MIN_MILEAGE
-import com.idz.Recar.dao.CarDao.Companion.MAX_MILEAGE
-import com.idz.Recar.dao.CarDao.Companion.MIN_PRICE
-import com.idz.Recar.dao.CarDao.Companion.MAX_PRICE
 
 
 class Model private constructor() {
@@ -28,12 +28,9 @@ class Model private constructor() {
     }
 
 
-
     private val database = AppLocalDatabase.db
     private var executor = Executors.newSingleThreadExecutor()
-    private var mainHandler = HandlerCompat.createAsync(Looper.getMainLooper())
     private val firebaseModel = FirebaseModel()
-    private val students: LiveData<MutableList<Student>>? = null
     private val results: LiveData<MutableList<Car>>? = null
     val resultsLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
     val studentsListLoadingState: MutableLiveData<LoadingState> =
@@ -41,48 +38,24 @@ class Model private constructor() {
     private val usersList: LiveData<MutableList<LocalUser>> = database.userDao().getAll()
     val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
     private val currCar: LiveData<Car>? = null
-    val currCarLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
 
     companion object {
         val instance: Model = Model()
     }
 
-    fun observeStudentsList(owner: LifecycleOwner, observer: (List<Student>) -> Unit) {
-        students?.observe(owner, observer)
-    }
-
-    fun observeUsersList(owner: LifecycleOwner, observer: (List<LocalUser>) -> Unit) {
-        usersList.observe(owner, observer)
-    }
-
-    fun observeCurrCar(owner: LifecycleOwner, observer: (Car) -> Unit) {
-        currCar?.observe(owner, observer)
-    }
-
-    fun observeCarList(owner: LifecycleOwner, observer: (List<Car>) -> Unit) {
-        results?.observe(owner, observer)
-    }
-
-    fun removeStudentsListObservers(owner: LifecycleOwner) {
-        students?.removeObservers(owner)
-    }
-
-    fun removeUsersListObservers(owner: LifecycleOwner) {
-        usersList.removeObservers(owner)
-    }
-
-    interface GetAllStudentsListener {
-        fun onComplete(students: List<Student>)
-    }
 
 
-    fun getAllStudents(): LiveData<MutableList<Student>> {
-        refreshAllStudents()
-        return students ?: database.studentDao().getAll()
-    }
+
+
+
+
+
+
+
+
 
     fun getAllCars(
-        yearStart: Int = CarDao.MIN_YEAR,
+        yearStart: Int = MIN_YEAR,
         yearEnd: Int = MAX_YEAR,
         mileageStart: Int = MIN_MILEAGE,
         mileageEnd: Int = MAX_MILEAGE,
@@ -123,39 +96,8 @@ class Model private constructor() {
         }
     }
 
-    fun getAllUsers(): LiveData<MutableList<LocalUser>> {
-        refreshAllUsers()
-        return usersList
-    }
 
-    fun refreshAllStudents() {
 
-        studentsListLoadingState.value = LoadingState.LOADING
-
-        // 1. Get last local update
-        val lastUpdated: Long = Student.lastUpdated
-
-        // 2. Get all updated records from firestore since last update locally
-        firebaseModel.getAllStudents(lastUpdated) { list ->
-            Log.i("TAG", "Firebase returned ${list.size}, lastUpdated: $lastUpdated")
-            // 3. Insert new record to ROOM
-            executor.execute {
-                var time = lastUpdated
-                for (student in list) {
-                    database.studentDao().insert(student)
-
-                    student.lastUpdated?.let {
-                        if (time < it)
-                            time = student.lastUpdated ?: System.currentTimeMillis()
-                    }
-                }
-
-                // 4. Update local data
-                Student.lastUpdated = time
-                studentsListLoadingState.postValue(LoadingState.LOADED)
-            }
-        }
-    }
 
     fun refreshAllUsers() {
         usersListLoadingState.value = LoadingState.LOADING
@@ -255,12 +197,6 @@ class Model private constructor() {
         }
     }
 
-    fun addStudent(student: Student, callback: () -> Unit) {
-        firebaseModel.addStudent(student) {
-            refreshAllStudents()
-            callback()
-        }
-    }
 
     fun addUser(user: User, uid: String, callback: () -> Unit) {
         firebaseModel.addUser(user, uid) {

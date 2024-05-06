@@ -3,7 +3,6 @@ package com.idz.Recar.Model
 import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
@@ -16,7 +15,6 @@ class FirebaseModel {
     private val db = Firebase.firestore
 
     companion object {
-        const val STUDENTS_COLLECTION_PATH = "students"
         const val USERS_COLLECTION_PATH = "users"
         const val CARS_COLLECTION_PATH = "cars"
     }
@@ -94,27 +92,7 @@ class FirebaseModel {
         }
     }
 
-    fun getAllStudents(since: Long, callback: (List<Student>) -> Unit) {
-        db.collection(STUDENTS_COLLECTION_PATH)
-            .whereGreaterThanOrEqualTo(Student.LAST_UPDATED, Timestamp(since, 0))
-            .addSnapshotListener { snapshot, exception ->
-                if (exception != null) {
-                    callback(emptyList())
-                    return@addSnapshotListener
-                }
 
-                if (snapshot != null && !snapshot.isEmpty) {
-                    val students: MutableList<Student> = mutableListOf()
-                    for (doc in snapshot.documents) {
-                        val student = doc.data?.let { Student.fromJSON(it) }
-                        student?.let { students.add(it) }
-                    }
-                    callback(students)
-                } else {
-                    callback(emptyList())
-                }
-            }
-    }
 
     fun getAllUsers(callback: (List<Pair<User, String>>) -> Unit) {
         db.collection(USERS_COLLECTION_PATH)
@@ -141,14 +119,7 @@ class FirebaseModel {
             }
     }
 
-    fun addStudent(student: Student, callback: () -> Unit) {
-        db.collection(STUDENTS_COLLECTION_PATH)
-            .document(student.id)
-            .set(student.json)
-            .addOnSuccessListener {
-                callback()
-            }
-    }
+
 
     fun fetchUserImage(imageUrl: String?, callback: (Uri?) -> Unit) {
         if (imageUrl.isNullOrEmpty()) {
