@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/loginFragment"
         android:name="com.idz.Recar.Modules.Login.Login"
-        android:label="loginFragment" />
+        />
     <action
         android:id="@+id/action_loginFragment_to_registerFragment"
         app:destination="@id/registerFragment" />
@@ -20,7 +20,7 @@
     <fragment
         android:id="@+id/registerFragment"
         android:name="com.idz.Recar.Modules.Register.Register"
-        android:label="registerFragment" />
+        />
     <action
         android:id="@+id/action_registerFragment_to_loginFragment"
         app:destination="@id/loginFragment" />
@@ -32,7 +32,6 @@
     <fragment
         android:id="@+id/studentsFragment"
         android:name="com.idz.Recar.Modules.Students.StudentsFragment"
-        android:label="Students List"
         tools:layout="@layout/fragment_students">
         <action
             android:id="@+id/action_studentsFragment_to_blueFragment"
@@ -41,7 +40,6 @@
     <fragment
         android:id="@+id/blueFragment"
         android:name="com.idz.Recar.BlueFragment"
-        android:label="Blue Fragment"
         tools:layout="@layout/fragment_blue">
         <argument
             android:name="TITLE"
@@ -50,13 +48,11 @@
     <fragment
         android:id="@+id/addStudentFragment"
         android:name="com.idz.Recar.Modules.AddStudent.AddStudentFragment"
-        android:label="Add Student"
         tools:layout="@layout/fragment_add_student" />
     <action android:id="@+id/action_global_addStudentFragment" app:destination="@id/addStudentFragment" />
     <fragment
         android:id="@+id/profileInfoFragment"
         android:name="com.idz.Recar.Modules.Profile.ProfileInfoFragment"
-        android:label="Profile Info"
         tools:layout="@layout/fragment_profile_info">
         <action
             android:id="@+id/action_profileInfoFragment_to_loginFragment"
@@ -71,7 +67,7 @@
     <fragment
         android:id="@+id/profileEditFragment"
         android:name="com.idz.Recar.Modules.Profile.ProfileEditFragment"
-        android:label="ProfileEditFragment">
+        >
     <action
         android:id="@+id/action_profileEditFragment_to_profileInfoFragment"
         app:destination="@id/profileInfoFragment" />
