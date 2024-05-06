@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.google.android.material.chip.Chip
@@ -22,7 +23,7 @@ class CarResultViewHolder(
     var makeChip: Chip? = null
     var modelChip: Chip? = null
     var yearChip: Chip? = null
-    var priceChip: Chip? = null
+    var priceView: TextView? = null
     var colorChip: Chip? = null
     var mileageChip: Chip? = null
     var result: Car? = null
@@ -36,7 +37,7 @@ class CarResultViewHolder(
         makeChip = itemView.findViewById(R.id.make_chip)
         modelChip = itemView.findViewById(R.id.model_chip)
         yearChip = itemView.findViewById(R.id.year_chip)
-        priceChip = itemView.findViewById(R.id.price_chip)
+        priceView = itemView.findViewById(R.id.tvPrice)
         colorChip = itemView.findViewById(R.id.color_chip)
         mileageChip = itemView.findViewById(R.id.mileage_chip)
         loader.strokeWidth = 5f
@@ -68,7 +69,7 @@ class CarResultViewHolder(
             makeChip?.text = car.make
             modelChip?.text = car.model
             yearChip?.text = car.year.toString()
-            priceChip?.text = car.price.toString()
+            priceView?.text = car.price.toString()
             colorChip?.text = car.color
             mileageChip?.text = car.mileage.toString()
 

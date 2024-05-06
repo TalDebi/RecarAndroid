@@ -1,33 +1,27 @@
 package com.idz.Recar.Modules.Register
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.navigation.NavController
+import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.imageview.ShapeableImageView
 import com.google.firebase.auth.FirebaseAuth
 import com.idz.Recar.Model.Model
-import com.idz.Recar.Model.Student
 import com.idz.Recar.Model.User
-import com.idz.Recar.Modules.Login.LoginDirections
-import com.idz.Recar.Modules.Students.StudentsFragmentDirections
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.squareup.picasso.Picasso
-import java.util.concurrent.CompletableFuture
 
 const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 
@@ -163,7 +157,7 @@ class Register : Fragment() {
 
                                     Model.instance.addUser(user, userId) {
                                         SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                                        navController.navigate(RegisterDirections.actionRegisterFragmentToStudentsFragment())
+                                        navController.navigate(RegisterDirections.actionRegisterFragmentToMyCarFragment())
                                         Toast.makeText(requireContext(), "Successfully Signed Up", Toast.LENGTH_SHORT).show()
                                     }
                                 } else {

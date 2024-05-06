@@ -1,6 +1,5 @@
 package com.idz.Recar.Modules.Students
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,7 +9,7 @@ import android.widget.BaseAdapter
 import android.widget.CheckBox
 import android.widget.ListView
 import android.widget.TextView
-import com.idz.Recar.Model.Model
+import androidx.appcompat.app.AppCompatActivity
 import com.idz.Recar.Model.Student
 import com.idz.Recar.R
 

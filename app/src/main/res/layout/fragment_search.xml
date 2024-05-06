@@ -7,47 +7,30 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="30dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:startIconDrawable="@drawable/search_24px">
-
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/searchField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Search" />
-    </com.google.android.material.textfield.TextInputLayout>
-
     <Button
         android:id="@+id/filterButton"
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
         android:layout_width="0dp"
         android:layout_height="48dp"
         android:layout_marginStart="36dp"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="12dp"
         android:text="Filters"
         app:icon="@drawable/filter_alt_24px"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <HorizontalScrollView
         android:layout_width="0dp"
         android:layout_height="43dp"
         android:layout_marginStart="30dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="30dp"
         app:layout_constraintBottom_toTopOf="@+id/listView"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/filterButton"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+        app:layout_constraintTop_toTopOf="parent">
 
         <com.google.android.material.chip.ChipGroup
             android:layout_width="match_parent"
@@ -108,24 +91,23 @@
         android:id="@+id/pullToRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout">
+        app:layout_constraintTop_toBottomOf="@+id/filterButton">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/result_list"
             android:layout_width="0dp"
-            android:layout_height="0dp"
- />
+            android:layout_height="0dp" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <ProgressBar
         android:id="@+id/progressBar2"
         style="?android:attr/progressBarStyle"
-        android:layout_width="0dp"
+        android:layout_width="60dp"
         android:layout_height="0dp"
         android:layout_marginTop="150dp"
         app:layout_constraintEnd_toStartOf="parent"

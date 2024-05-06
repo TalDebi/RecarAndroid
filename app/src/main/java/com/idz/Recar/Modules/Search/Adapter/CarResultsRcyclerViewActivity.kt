@@ -1,8 +1,8 @@
 package com.idz.Recar.Modules.Search.Adapter
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.idz.Recar.Model.Car

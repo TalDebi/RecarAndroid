@@ -5,7 +5,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.TextView
@@ -23,8 +22,6 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import com.idz.Recar.Model.Model
 import com.idz.Recar.Model.User
-import com.idz.Recar.Modules.Register.DEFAULT_IMAGE_URL
-import com.idz.Recar.Modules.Register.RegisterDirections
 import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 
@@ -76,7 +73,7 @@ class Login : Fragment() {
         if (firebaseUser != null) {
             val userId = firebaseUser.uid
             SharedPreferencesHelper.saveUserId(requireContext(), userId)
-            val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+            val action = LoginDirections.actionLoginFragmentToMyCarFragment()
             navController.navigate(action)
         }
     }
@@ -103,11 +100,12 @@ class Login : Fragment() {
                 val firebaseUser = auth.currentUser
                 val userId = firebaseUser?.uid ?: ""
                 SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+                val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                 navController.navigate(action)
                 Toast.makeText(requireContext(), "Successfully LoggedIn", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT)
+                    .show()
             }
             loginProgressBar.visibility = View.GONE
             loginButton.isEnabled = true
@@ -138,7 +136,11 @@ class Login : Fragment() {
                 val account = task.getResult(ApiException::class.java)!!
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
-                Toast.makeText(requireContext(), "Google Sign-In failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Google Sign-In failed: ${e.statusCode}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -174,15 +176,23 @@ class Login : Fragment() {
 
                             Model.instance.addUser(user, userId) {
                                 SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                                val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+                                val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                                 navController.navigate(action)
-                                Toast.makeText(requireContext(), "Successfully LoggedIn", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Successfully LoggedIn",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
                             SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                            val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+                            val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                             navController.navigate(action)
-                            Toast.makeText(requireContext(), "Successfully LoggedIn", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Successfully LoggedIn",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 } else {

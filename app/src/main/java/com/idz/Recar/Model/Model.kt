@@ -7,8 +7,18 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.idz.Recar.dao.AppLocalDatabase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 import com.idz.Recar.dao.User as LocalUser
+import com.idz.Recar.dao.CarDao
+import com.idz.Recar.dao.CarDao.Companion.MIN_YEAR
+import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
+import com.idz.Recar.dao.CarDao.Companion.MIN_MILEAGE
+import com.idz.Recar.dao.CarDao.Companion.MAX_MILEAGE
+import com.idz.Recar.dao.CarDao.Companion.MIN_PRICE
+import com.idz.Recar.dao.CarDao.Companion.MAX_PRICE
+
 
 class Model private constructor() {
 
@@ -16,6 +26,8 @@ class Model private constructor() {
         LOADING,
         LOADED
     }
+
+
 
     private val database = AppLocalDatabase.db
     private var executor = Executors.newSingleThreadExecutor()
@@ -70,15 +82,16 @@ class Model private constructor() {
     }
 
     fun getAllCars(
-        yearStart: Int,
-        yearEnd: Int,
-        mileageStart: Int,
-        mileageEnd: Int,
-        priceStart: Int,
-        priceEnd: Int,
-        color: String?,
-        model: String?,
-        make: String?
+        yearStart: Int = CarDao.MIN_YEAR,
+        yearEnd: Int = MAX_YEAR,
+        mileageStart: Int = MIN_MILEAGE,
+        mileageEnd: Int = MAX_MILEAGE,
+        priceStart: Int = MIN_PRICE,
+        priceEnd: Int = MAX_PRICE,
+        color: String? = null,
+        model: String? = null,
+        make: String? = null,
+        owner: String? = null
     ): LiveData<MutableList<Car>> {
         refreshAllCars(
             yearStart,
@@ -89,7 +102,8 @@ class Model private constructor() {
             priceEnd,
             color,
             model,
-            make
+            make,
+            owner
         )
         val a = results ?: database.carDao().getAll()
         return a
@@ -98,7 +112,15 @@ class Model private constructor() {
     fun getCarById(id: String): LiveData<Car> {
         refreshCurrCar(id)
         return currCar ?: database.carDao().getCarById(id)
+    }
 
+    fun deleteCarById(id: String) {
+        firebaseModel.deleteCarById(id)
+        runBlocking { // this: CoroutineScope
+            launch { // launch a new coroutine and continue
+                database.carDao().deleteByCarId(id)
+            }
+        }
     }
 
     fun getAllUsers(): LiveData<MutableList<LocalUser>> {
@@ -163,15 +185,16 @@ class Model private constructor() {
     }
 
     fun refreshAllCars(
-        yearStart: Int,
-        yearEnd: Int,
-        mileageStart: Int,
-        mileageEnd: Int,
-        priceStart: Int,
-        priceEnd: Int,
-        color: String?,
-        model: String?,
-        make: String?
+        yearStart: Int = MIN_YEAR,
+        yearEnd: Int = MAX_YEAR,
+        mileageStart: Int = MIN_MILEAGE,
+        mileageEnd: Int = MAX_MILEAGE,
+        priceStart: Int = MIN_PRICE,
+        priceEnd: Int = MAX_PRICE,
+        color: String? = null,
+        model: String? = null,
+        make: String? = null,
+        owner: String? = null
     ) {
         resultsLoadingState.value = LoadingState.LOADING
         firebaseModel.getAllCars(
@@ -183,10 +206,12 @@ class Model private constructor() {
             priceEnd,
             color,
             model,
-            make
+            make,
+            owner
         ) { list ->
             Log.i("TAG", "Firebase returned ${list.size} cars")
             executor.execute {
+                database.carDao().deleteAll()
                 list.forEach { car ->
                     val localCar = Car(
                         car.id,

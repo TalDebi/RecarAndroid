@@ -38,9 +38,10 @@ class FirebaseModel {
         color: String?,
         model: String?,
         make: String?,
+        owner:String?,
         callback: (MutableList<Car>) -> Unit
     ) {
-        val query = db.collection(CARS_COLLECTION_PATH)
+        var query = db.collection(CARS_COLLECTION_PATH)
             .whereGreaterThanOrEqualTo(Car.YEAR_KEY, yearStart)
             .whereLessThanOrEqualTo(Car.YEAR_KEY, yearEnd)
             .whereGreaterThanOrEqualTo(Car.MILEAGE_KEY, mileageStart)
@@ -48,14 +49,18 @@ class FirebaseModel {
             .whereGreaterThanOrEqualTo(Car.PRICE_KEY, priceStart)
             .whereLessThanOrEqualTo(Car.PRICE_KEY, priceEnd)
         if (color != null) {
-            query.whereEqualTo(Car.COLOR_KEY, color)
+            query = query.whereEqualTo(Car.COLOR_KEY, color)
         }
         if (model != null) {
-            query.whereEqualTo(Car.MODEL_KEY, model)
+            query = query.whereEqualTo(Car.MODEL_KEY, model)
         }
         if (make != null) {
-            query.whereEqualTo(Car.MAKE_KEY, make)
+            query = query.whereEqualTo(Car.MAKE_KEY, make)
         }
+        if (owner != null) {
+            query = query.whereEqualTo(Car.OWNER_KEY, owner)
+        }
+
 
         query.get().addOnCompleteListener {
             when (it.isSuccessful) {
@@ -224,6 +229,12 @@ class FirebaseModel {
                     Log.e(TAG, "Error editing user document", e)
                 }
         }
+    }
+
+    fun deleteCarById(id: String) {
+        db.collection(CARS_COLLECTION_PATH).document(id)
+            .delete()
+
     }
 }
 

@@ -3,7 +3,6 @@ package com.idz.Recar.Modules.Students.Adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import androidx.swiperefreshlayout.widget.CircularProgressDrawable
 import com.idz.Recar.Model.Student
 import com.idz.Recar.Modules.Students.StudentsRcyclerViewActivity
 import com.idz.Recar.R

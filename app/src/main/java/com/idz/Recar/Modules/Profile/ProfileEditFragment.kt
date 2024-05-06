@@ -4,27 +4,24 @@
     import android.view.LayoutInflater
     import android.view.View
     import android.view.ViewGroup
-    import android.widget.Button
     import android.widget.EditText
     import android.widget.ImageButton
     import android.widget.ProgressBar
     import android.widget.Toast
     import androidx.activity.result.contract.ActivityResultContracts
     import androidx.fragment.app.Fragment
+    import androidx.navigation.fragment.findNavController
+    import com.google.android.material.button.MaterialButton
     import com.google.android.material.imageview.ShapeableImageView
+    import com.google.firebase.auth.FirebaseAuth
+    import com.idz.Recar.Model.FirebaseModel
     import com.idz.Recar.Model.Model
+    import com.idz.Recar.Model.User
     import com.idz.Recar.R
     import com.idz.Recar.Utils.SharedPreferencesHelper
     import com.idz.Recar.dao.AppLocalDatabase
-    import com.squareup.picasso.Callback
     import com.squareup.picasso.Picasso
-    import androidx.navigation.fragment.findNavController
-    import com.google.android.material.button.MaterialButton
-    import com.google.firebase.auth.FirebaseAuth
-    import com.idz.Recar.Model.FirebaseModel
     import com.idz.Recar.dao.User as LocalUser
-    import com.idz.Recar.Model.User
-    import java.util.concurrent.CompletableFuture
 
     const val DEFAULT_IMAGE_URL = "drawable://avatar.png"
 

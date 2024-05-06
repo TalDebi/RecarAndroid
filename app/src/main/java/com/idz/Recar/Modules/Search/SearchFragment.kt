@@ -11,17 +11,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Button
+import android.widget.EditText
 import android.widget.ProgressBar
 import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.google.android.material.chip.Chip
-import com.google.android.material.sidesheet.SideSheetCallback
 import com.google.android.material.sidesheet.SideSheetDialog
 import com.google.android.material.slider.RangeSlider
 import com.google.android.material.textfield.MaterialAutoCompleteTextView
@@ -30,7 +30,7 @@ import com.idz.Recar.Modules.Search.Adapter.CarResultRecyclerAdapter
 import com.idz.Recar.Modules.Search.Adapter.OnItemClickListener
 import com.idz.Recar.R
 import com.idz.Recar.base.VollyQueue
-import com.idz.Recar.databinding.SearchBinding
+import com.idz.Recar.databinding.FragmentSearchBinding
 
 
 class SearchFragment : Fragment() {
@@ -54,7 +54,7 @@ class SearchFragment : Fragment() {
     private var mileageSlider: RangeSlider? = null
     private var makeSelect: MaterialAutoCompleteTextView? = null
     private var modelSelect: MaterialAutoCompleteTextView? = null
-    private var colorSelect: MaterialAutoCompleteTextView? = null
+    private var colorSelect: EditText? = null
     private var priceChip: Chip? = null
     private var makeChip: Chip? = null
     private var modelChip: Chip? = null
@@ -63,7 +63,7 @@ class SearchFragment : Fragment() {
     private var mileageChip: Chip? = null
     private var baseUrl =
         "https://public.opendatasoft.com/api/explore/v2.1/catalog/datasets/all-vehicles-model/records?limit=5000&group_by="
-    private var _binding: SearchBinding? = null
+    private var _binding: FragmentSearchBinding? = null
     private val binding get() = _binding!!
 
     private var yearStart: Int = MIN_YEAR
@@ -123,31 +123,6 @@ class SearchFragment : Fragment() {
             }
 
         })
-        val standardSideSheetBehavior = filterSheet?.behavior
-//        val sideSheetCallback = object : SideSheetCallback() {
-//            override fun onStateChanged(sideSheet: View, newState: Int) {
-//                if (newState == SideSheetBehavior.STATE_HIDDEN) {
-//                    reloadData()
-//                }
-//            }
-//
-//
-//            override fun onSlide(p0: View, p1: Float) {
-//                print("a")
-//            }
-//
-//        }
-        val sideSheetCallback = object : SideSheetCallback() {
-
-            override fun onStateChanged(sideSheet: View, newState: Int) {
-                print("a")
-            }
-
-            override fun onSlide(sideSheet: View, slideOffset: Float) {
-                print("b")
-            }
-        }
-        standardSideSheetBehavior?.addCallback(sideSheetCallback)
 
         priceSlider?.let {
             it.values = listOf<Float>(0F, 100000F)
@@ -232,13 +207,11 @@ class SearchFragment : Fragment() {
             }
         }
 
-        colorSelect?.onItemClickListener =
-            AdapterView.OnItemClickListener { parent, _, position, _ ->
-                colorChip?.text = parent?.getItemAtPosition(position) as String
-                colorChip?.visibility = View.VISIBLE
-                color = parent.getItemAtPosition(position) as String
-            }
+
         colorSelect?.doOnTextChanged { text, _, _, _ ->
+            colorChip?.text = text
+            color = text.toString()
+            colorChip?.visibility = View.VISIBLE
             if (text.toString() == "") {
                 colorChip?.visibility = View.GONE
                 color = null
@@ -258,7 +231,7 @@ class SearchFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = SearchBinding.inflate(inflater, container, false)
+        _binding = FragmentSearchBinding.inflate(inflater, container, false)
         val view = binding.root
         // Inflate the layout for this fragment
         setupUI(view)
@@ -324,10 +297,8 @@ class SearchFragment : Fragment() {
                 Log.i("TAG", "StudentsRecyclerAdapter: Position clicked $position")
                 val result = viewModel.results?.value?.get(position)
                 result?.let {
-                    val bundle = Bundle()
-                    bundle.putString("id", it.id)
-                    Navigation.findNavController(view)
-                        .navigate(R.id.action_global_currCarFragment, bundle)
+                    val action = SearchFragmentDirections.actionSearchFragmentToCarFragment(it.id)
+                    view.findNavController().navigate(action)
                 }
             }
 
@@ -376,9 +347,6 @@ class SearchFragment : Fragment() {
         progressBar?.visibility = View.GONE
         binding.pullToRefresh.isRefreshing = false
     }
-
-
-
 
 
 }

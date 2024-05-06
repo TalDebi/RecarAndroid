@@ -2,7 +2,6 @@ package com.idz.Recar.Model
 
 import android.widget.ImageView
 import androidx.room.Entity
-import androidx.room.PrimaryKey
 import androidx.room.TypeConverters
 import com.google.firebase.firestore.FieldValue
 import com.idz.Recar.dao.FieldValueConverter

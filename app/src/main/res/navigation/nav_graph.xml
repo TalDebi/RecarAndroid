@@ -13,8 +13,8 @@
         android:id="@+id/action_loginFragment_to_registerFragment"
         app:destination="@id/registerFragment" />
     <action
-        android:id="@+id/action_loginFragment_to_studentsFragment"
-        app:destination="@id/studentsFragment"
+        android:id="@+id/action_loginFragment_to_myCarFragment"
+        app:destination="@id/myCarFragment"
         app:popUpTo="@+id/nav_graph"
         app:popUpToInclusive="true" />
     <fragment
@@ -25,13 +25,13 @@
         android:id="@+id/action_registerFragment_to_loginFragment"
         app:destination="@id/loginFragment" />
     <action
-        android:id="@+id/action_registerFragment_to_studentsFragment"
-        app:destination="@id/studentsFragment"
+        android:id="@+id/action_registerFragment_to_myCarFragment"
+        app:destination="@id/myCarFragment"
         app:popUpTo="@+id/nav_graph"
         app:popUpToInclusive="true" />
     <action
-        android:id="@+id/action_carFormFragment_to_studentsFragment"
-        app:destination="@id/studentsFragment" />
+        android:id="@+id/action_carFormFragment_to_myCarFragment"
+        app:destination="@id/myCarFragment" />
     <fragment
         android:id="@+id/studentsFragment"
         android:name="com.idz.Recar.Modules.Students.StudentsFragment"
@@ -83,22 +83,49 @@
     <fragment
         android:id="@+id/searchFragment"
         android:name="com.idz.Recar.Modules.Search.SearchFragment"
-        android:label="SearchFragment" />
+        android:label="SearchFragment">
+        <action
+            android:id="@+id/action_searchFragment_to_carFragment"
+            app:destination="@id/carFragment">
+            <argument
+                android:name="carId"
+                app:argType="string" />
+        </action>
+    </fragment>
     <action
         android:id="@+id/action_global_searchFragment"
         app:destination="@id/searchFragment" />
     <fragment
-        android:id="@+id/currCarFragment"
+        android:id="@+id/carFragment"
         android:name="com.idz.Recar.Modules.Car.CarFragment"
-        android:label="CarFragment" />
-    <action
-        android:id="@+id/action_global_currCarFragment"
-        app:destination="@id/currCarFragment" />
+        android:label="CarFragment">
+
+    </fragment>
     <fragment
         android:id="@+id/carFormFragment"
         android:name="com.idz.Recar.Modules.Car.CarFormFragment"
         android:label="carFormFragment" />
     <action
         android:id="@+id/action_global_carFormFragment"
-        app:destination="@id/carFormFragment" />
+        app:destination="@id/carFormFragment">
+        <argument
+            android:name="carId"
+            android:defaultValue="@null"
+            app:argType="string"
+            app:nullable="true" />
+    </action>
+
+    <fragment
+        android:id="@+id/myCarFragment"
+        android:name="com.idz.Recar.Modules.Car.MyCarsFragment"
+        android:label="Cars List"
+        tools:layout="@layout/fragment_my_cars">
+        <action
+            android:id="@+id/action_myCarFragment_to_carFragment"
+            app:destination="@id/carFragment">
+            <argument
+                android:name="carId"
+                app:argType="string" />
+        </action>
+    </fragment>
 </navigation>

@@ -1,8 +1,9 @@
 package com.idz.Recar.Modules.Car
 
+import android.icu.text.NumberFormat
+import android.icu.util.Currency
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -30,10 +32,11 @@ import com.idz.Recar.R
 import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.idz.Recar.base.FireBaseStorage
 import com.idz.Recar.base.VollyQueue
-import com.idz.Recar.dao.CarDao
+import com.idz.Recar.dao.AppLocalDatabase
 import java.util.UUID
 
 class CarFormFragment : Fragment() {
+    private var carId: String? = null
     private lateinit var modelText: MaterialAutoCompleteTextView
     private lateinit var makeText: MaterialAutoCompleteTextView
     private lateinit var yearText: EditText
@@ -48,6 +51,7 @@ class CarFormFragment : Fragment() {
 
     private var imageSuccessList = mutableListOf<String>()
     private var imageUris: List<Uri>? = null
+    private val carDao = AppLocalDatabase.db.carDao()
 
     private lateinit var registerButton: MaterialButton
     private lateinit var registerProgressBar: ProgressBar
@@ -76,6 +80,8 @@ class CarFormFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        carId = arguments?.getString("carId")
+
         val view = inflater.inflate(R.layout.fragment_car_form, container, false)
         setupUI(view)
         return view
@@ -94,12 +100,14 @@ class CarFormFragment : Fragment() {
         val city = cityText.text.toString()
 
         if (make.isEmpty() || model.isEmpty() || year.isEmpty() || color.isEmpty() ||
-            price.isEmpty() || hand.isEmpty() || mileage.isEmpty() || imageUris == null ||
+            price.isEmpty() || hand.isEmpty() || mileage.isEmpty() || (imageSuccessList.isEmpty() && imageUris == null) ||
             city.isEmpty()
         ) {
             Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
+            toggleLoading(false)
             return false
         }
+
         return true
     }
 
@@ -121,11 +129,29 @@ class CarFormFragment : Fragment() {
         imageCarousel = view.findViewById(R.id.rvCarousel)
         getOptions("make", makeText)
         getOptions("model", modelText)
-        imageCarousel?.layoutManager = CarouselLayoutManager()
-        imageCarousel?.adapter = imageUris?.let {
+        imageCarousel.layoutManager = CarouselLayoutManager()
+        imageCarousel.adapter = imageUris?.let {
             ImageAdapter(it.map {
                 it.toString()
             }, true)
+        }
+        carId?.let { it ->
+            Model.instance.getCarById(it)
+            carDao.getCarById(it).observe(viewLifecycleOwner, Observer { car ->
+                car?.let { currCar ->
+                    makeText.setText(currCar.make)
+                    modelText.setText(currCar.model)
+                    yearText.setText(currCar.year.toString())
+                    colorText.setText(currCar.color)
+                    priceText.setText(currCar.price.toString())
+                    handText.setText(currCar.hand.toString())
+                    mileageText.setText(currCar.mileage.toString())
+                    cityText.setText(currCar.city)
+                    imageCarousel.adapter = ImageAdapter(currCar.imageUrls, false)
+                    imageSuccessList = currCar.imageUrls.toMutableList()
+
+                }
+            })
         }
 
         registerButton = view.findViewById(R.id.submitButton)
@@ -158,7 +184,7 @@ class CarFormFragment : Fragment() {
                 Tasks.whenAll(tasks).addOnCompleteListener { p0 ->
                     if (p0.isSuccessful) {
                         val car = Car(
-                            UUID.randomUUID().toString(),
+                            carId ?: UUID.randomUUID().toString(),
                             imageSuccessList,
                             make,
                             model,
@@ -172,7 +198,7 @@ class CarFormFragment : Fragment() {
                         )
                         Model.instance.addCar(car) {
                             toggleLoading(false)
-                            findNavController().navigate(R.id.action_carFormFragment_to_studentsFragment)
+                            findNavController().navigate(R.id.action_carFormFragment_to_myCarFragment)
                         }
 
                     } else {
@@ -189,6 +215,7 @@ class CarFormFragment : Fragment() {
     fun uploadPhotos(imageUris: List<Uri>): ArrayList<Task<UploadTask.TaskSnapshot>> {
         val storageRef = FireBaseStorage.getInstance().storage.reference
         val tasks = arrayListOf<Task<UploadTask.TaskSnapshot>>()
+        imageSuccessList = mutableListOf()
         for (imageUri in imageUris) {
 
 

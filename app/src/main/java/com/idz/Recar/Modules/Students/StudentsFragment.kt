@@ -2,13 +2,12 @@ package com.idz.Recar.Modules.Students
 
 import android.os.Bundle
 import android.util.Log
-import android.view.Display.Mode
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -46,7 +45,7 @@ class StudentsFragment : Fragment() {
 
         viewModel.students = Model.instance.getAllStudents()
 
-        studentsRcyclerView = binding.rvStudentsFragmentList
+        studentsRcyclerView = binding.rvCars
         studentsRcyclerView?.setHasFixedSize(true)
         studentsRcyclerView?.layoutManager = LinearLayoutManager(context)
         adapter = StudentsRecyclerAdapter(viewModel.students?.value)
@@ -68,7 +67,7 @@ class StudentsFragment : Fragment() {
 
         studentsRcyclerView?.adapter = adapter
 
-        val addStudentButton: ImageButton = view.findViewById(R.id.ibtnStudentsFragmentAddStudent)
+        val addStudentButton: ImageButton = view.findViewById(R.id.btnAddCar)
         val action = Navigation.createNavigateOnClickListener(StudentsFragmentDirections.actionGlobalCarFormFragment())
         addStudentButton.setOnClickListener(action)
 
