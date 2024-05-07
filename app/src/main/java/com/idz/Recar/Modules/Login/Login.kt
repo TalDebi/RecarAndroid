@@ -85,7 +85,7 @@ class Login : Fragment() {
         if (firebaseUser != null) {
             val userId = firebaseUser.uid
             SharedPreferencesHelper.saveUserId(requireContext(), userId)
-            val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+            val action = LoginDirections.actionLoginFragmentToMyCarFragment()
             navController.navigate(action)
         }
     }
@@ -116,11 +116,12 @@ class Login : Fragment() {
                 val firebaseUser = auth.currentUser
                 val userId = firebaseUser?.uid ?: ""
                 SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+                val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                 navController.navigate(action)
                 Toast.makeText(requireContext(), "Successfully LoggedIn", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Incorrect email or password", Toast.LENGTH_SHORT)
+                    .show()
             }
 
             toggleLoading(false)
@@ -149,7 +150,11 @@ class Login : Fragment() {
                 val account = task.getResult(ApiException::class.java)!!
                 firebaseAuthWithGoogle(account)
             } catch (e: ApiException) {
-                Toast.makeText(requireContext(), "Google Sign-In failed: ${e.statusCode}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Google Sign-In failed: ${e.statusCode}",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }
@@ -173,16 +178,24 @@ class Login : Fragment() {
                             Model.instance.addUser(user, userId) {
                                 toggleLoading(false)
                                 SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                                val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+                                val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                                 navController.navigate(action)
-                                Toast.makeText(requireContext(), "Successfully LoggedIn", Toast.LENGTH_SHORT).show()
+                                Toast.makeText(
+                                    requireContext(),
+                                    "Successfully LoggedIn",
+                                    Toast.LENGTH_SHORT
+                                ).show()
                             }
                         } else {
                             toggleLoading(false)
                             SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                            val action = LoginDirections.actionLoginFragmentToStudentsFragment()
+                            val action = LoginDirections.actionLoginFragmentToMyCarFragment()
                             navController.navigate(action)
-                            Toast.makeText(requireContext(), "Successfully LoggedIn", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(
+                                requireContext(),
+                                "Successfully LoggedIn",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 } else {

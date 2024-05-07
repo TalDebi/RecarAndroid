@@ -1,12 +1,20 @@
 package com.idz.Recar.Model
 
 import android.util.Log
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.idz.Recar.dao.AppLocalDatabase
+import com.idz.Recar.dao.CarDao.Companion.MAX_MILEAGE
+import com.idz.Recar.dao.CarDao.Companion.MAX_PRICE
+import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
+import com.idz.Recar.dao.CarDao.Companion.MIN_MILEAGE
+import com.idz.Recar.dao.CarDao.Companion.MIN_PRICE
+import com.idz.Recar.dao.CarDao.Companion.MIN_YEAR
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.Executors
 import com.idz.Recar.dao.User as LocalUser
+
 
 class Model private constructor() {
 
@@ -18,53 +26,67 @@ class Model private constructor() {
     private val database = AppLocalDatabase.db
     private var executor = Executors.newSingleThreadExecutor()
     private val firebaseModel = FirebaseModel()
-    private val students: LiveData<MutableList<Student>>? = null
-    val studentsListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
+    private val results: LiveData<MutableList<Car>>? = null
+    val resultsLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
+    val studentsListLoadingState: MutableLiveData<LoadingState> =
+        MutableLiveData(LoadingState.LOADED)
     private val usersList: LiveData<MutableList<LocalUser>> = database.userDao().getAll()
     private val usersListLoadingState: MutableLiveData<LoadingState> = MutableLiveData(LoadingState.LOADED)
+    private val currCar: LiveData<Car>? = null
 
     companion object {
         val instance: Model = Model()
     }
 
-    fun observeStudentsList(owner: LifecycleOwner, observer: (List<Student>) -> Unit) {
-        students?.observe(owner, observer)
+
+
+
+
+
+
+
+
+
+
+
+    fun getAllCars(
+        yearStart: Int = MIN_YEAR,
+        yearEnd: Int = MAX_YEAR,
+        mileageStart: Int = MIN_MILEAGE,
+        mileageEnd: Int = MAX_MILEAGE,
+        priceStart: Int = MIN_PRICE,
+        priceEnd: Int = MAX_PRICE,
+        color: String? = null,
+        model: String? = null,
+        make: String? = null,
+        owner: String? = null
+    ): LiveData<MutableList<Car>> {
+        refreshAllCars(
+            yearStart,
+            yearEnd,
+            mileageStart,
+            mileageEnd,
+            priceStart,
+            priceEnd,
+            color,
+            model,
+            make,
+            owner
+        )
+        val a = results ?: database.carDao().getAll()
+        return a
     }
 
-    fun removeStudentsListObservers(owner: LifecycleOwner) {
-        students?.removeObservers(owner)
+    fun getCarById(id: String): LiveData<Car> {
+        refreshCurrCar(id)
+        return currCar ?: database.carDao().getCarById(id)
     }
 
-    interface GetAllStudentsListener {
-        fun onComplete(students: List<Student>)
-    }
-
-    fun getAllStudents(): LiveData<MutableList<Student>> {
-        refreshAllStudents()
-        return students ?: database.studentDao().getAll()
-    }
-
-    fun refreshAllStudents() {
-
-        studentsListLoadingState.value = LoadingState.LOADING
-
-        val lastUpdated: Long = Student.lastUpdated
-
-        firebaseModel.getAllStudents(lastUpdated) { list ->
-            Log.i("TAG", "Firebase returned ${list.size}, lastUpdated: $lastUpdated")
-            executor.execute {
-                var time = lastUpdated
-                for (student in list) {
-                    database.studentDao().insert(student)
-
-                    student.lastUpdated?.let {
-                        if (time < it)
-                            time = student.lastUpdated ?: System.currentTimeMillis()
-                    }
-                }
-
-                Student.lastUpdated = time
-                studentsListLoadingState.postValue(LoadingState.LOADED)
+    fun deleteCarById(id: String) {
+        firebaseModel.deleteCarById(id)
+        runBlocking { // this: CoroutineScope
+            launch { // launch a new coroutine and continue
+                database.carDao().deleteByCarId(id)
             }
         }
     }
@@ -93,16 +115,87 @@ class Model private constructor() {
         }
     }
 
-    fun addStudent(student: Student, callback: () -> Unit) {
-        firebaseModel.addStudent(student) {
-            refreshAllStudents()
-            callback()
+    fun refreshAllCars(
+        yearStart: Int = MIN_YEAR,
+        yearEnd: Int = MAX_YEAR,
+        mileageStart: Int = MIN_MILEAGE,
+        mileageEnd: Int = MAX_MILEAGE,
+        priceStart: Int = MIN_PRICE,
+        priceEnd: Int = MAX_PRICE,
+        color: String? = null,
+        model: String? = null,
+        make: String? = null,
+        owner: String? = null
+    ) {
+        resultsLoadingState.value = LoadingState.LOADING
+        firebaseModel.getAllCars(
+            yearStart,
+            yearEnd,
+            mileageStart,
+            mileageEnd,
+            priceStart,
+            priceEnd,
+            color,
+            model,
+            make,
+            owner
+        ) { list ->
+            Log.i("TAG", "Firebase returned ${list.size} cars")
+            executor.execute {
+                database.carDao().deleteAll()
+                list.forEach { car ->
+                    val localCar = Car(
+                        car.id,
+                        car.imageUrls,
+                        car.make,
+                        car.model,
+                        car.year,
+                        car.price,
+                        car.hand,
+                        car.color,
+                        car.mileage,
+                        car.city,
+                        car.owner
+                    )
+                    database.carDao().insert(localCar)
+                }
+                resultsLoadingState.postValue(LoadingState.LOADED)
+            }
         }
     }
+
+    fun refreshCurrCar(id: String) {
+        usersListLoadingState.value = LoadingState.LOADING
+
+        // Get all updated records from Firestore since the last update locally
+        firebaseModel.getCarById(id) { car ->
+            Log.i("TAG", "Firebase returned 1 car")
+            car?.let {
+                // Insert or update records in the local database
+                executor.execute {
+                    val temp = car.toMutableMap()
+                    temp.put(Car.ID_KEY, id)
+                    val localCar = Car.fromJSON(temp)
+
+                    database.carDao().insert(localCar)
+                }
+
+                // Update the loading state
+                usersListLoadingState.postValue(LoadingState.LOADED)
+            }
+        }
+    }
+
 
     fun addUser(user: User, uid: String, callback: () -> Unit) {
         firebaseModel.addUser(user, uid) {
             refreshAllUsers()
+            callback()
+        }
+    }
+
+    fun addCar(car: Car, callback: () -> Unit) {
+        firebaseModel.addCar(car) {
             callback()
         }
     }

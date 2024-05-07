@@ -129,7 +129,7 @@ class Register : Fragment() {
 
                                 Model.instance.addUser(user, userId) {
                                     SharedPreferencesHelper.saveUserId(requireContext(), userId)
-                                    navController.navigate(RegisterDirections.actionRegisterFragmentToStudentsFragment())
+                                    navController.navigate(RegisterDirections.actionRegisterFragmentToMyCarFragment())
                                     toggleLoading(false)
                                     Toast.makeText(requireContext(), "Successfully Signed Up", Toast.LENGTH_SHORT).show()
                                 }

@@ -1,10 +1,10 @@
 package com.idz.Recar
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -25,12 +25,19 @@ class MainActivity : AppCompatActivity() {
 
         navController?.navigate(R.id.loginFragment)
 
-        navController?.let { NavigationUI.setupActionBarWithNavController(this, it) }
+//        navController?.let { NavigationUI.setupActionBarWithNavController(this, it)
+//        }
 
         navController?.navigate(R.id.loginFragment)
         val bottomNavigationView: BottomNavigationView =
             findViewById(R.id.mainActivityBottomNavigationView)
         navController?.let { NavigationUI.setupWithNavController(bottomNavigationView, it) }
+        bottomNavigationView.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                else -> navController?.navigate(item.itemId)
+            }
+            true
+        }
 
         navController?.addOnDestinationChangedListener { _, destination, _ ->
             if (destination.id == R.id.loginFragment || destination.id == R.id.registerFragment) {
@@ -57,7 +64,9 @@ class MainActivity : AppCompatActivity() {
                 navController?.navigateUp()
                 true
             }
-            else -> navController?.let { NavigationUI.onNavDestinationSelected(item, it) } ?: super.onOptionsItemSelected(item)
+
+            else -> navController?.let { NavigationUI.onNavDestinationSelected(item, it) }
+                ?: super.onOptionsItemSelected(item)
         }
     }
 }

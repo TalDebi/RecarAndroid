@@ -3,18 +3,20 @@ package com.idz.Recar.Model
 import android.content.ContentValues.TAG
 import android.net.Uri
 import android.util.Log
-import com.google.firebase.Timestamp
 import com.google.firebase.firestore.firestoreSettings
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.firestore.memoryCacheSettings
 import com.google.firebase.ktx.Firebase
-import okhttp3.Request
+
+import androidx.lifecycle.LifecycleOwner
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.storage.FirebaseStorage
 import com.idz.Recar.Model.User.Companion.DEFAULT_IMAGE_URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
 
 class FirebaseModel {
@@ -22,38 +24,83 @@ class FirebaseModel {
     private val db = Firebase.firestore
 
     companion object {
-        const val STUDENTS_COLLECTION_PATH = "students"
         const val USERS_COLLECTION_PATH = "users"
+        const val CARS_COLLECTION_PATH = "cars"
     }
 
     init {
         val settings = firestoreSettings {
-            setLocalCacheSettings(memoryCacheSettings {  })
+            setLocalCacheSettings(memoryCacheSettings { })
         }
         db.firestoreSettings = settings
     }
 
-    fun getAllStudents(since: Long, callback: (List<Student>) -> Unit) {
-        db.collection(STUDENTS_COLLECTION_PATH)
-            .whereGreaterThanOrEqualTo(Student.LAST_UPDATED, Timestamp(since, 0))
-            .addSnapshotListener { snapshot, exception ->
-                if (exception != null) {
-                    callback(emptyList())
-                    return@addSnapshotListener
+    fun getAllCars(
+        yearStart: Int,
+        yearEnd: Int,
+        mileageStart: Int,
+        mileageEnd: Int,
+        priceStart: Int,
+        priceEnd: Int,
+        color: String?,
+        model: String?,
+        make: String?,
+        owner: String?,
+        callback: (MutableList<Car>) -> Unit
+    ) {
+        var query = db.collection(CARS_COLLECTION_PATH)
+            .whereGreaterThanOrEqualTo(Car.YEAR_KEY, yearStart)
+            .whereLessThanOrEqualTo(Car.YEAR_KEY, yearEnd)
+            .whereGreaterThanOrEqualTo(Car.MILEAGE_KEY, mileageStart)
+            .whereLessThanOrEqualTo(Car.MILEAGE_KEY, mileageEnd)
+            .whereGreaterThanOrEqualTo(Car.PRICE_KEY, priceStart)
+            .whereLessThanOrEqualTo(Car.PRICE_KEY, priceEnd)
+        if (color != null) {
+            query = query.whereEqualTo(Car.COLOR_KEY, color)
+        }
+        if (model != null) {
+            query = query.whereEqualTo(Car.MODEL_KEY, model)
+        }
+        if (make != null) {
+            query = query.whereEqualTo(Car.MAKE_KEY, make)
+        }
+        if (owner != null) {
+            query = query.whereEqualTo(Car.OWNER_KEY, owner)
+        }
+
+
+        query.get().addOnCompleteListener {
+            when (it.isSuccessful) {
+                true -> {
+                    val cars: MutableList<Car> = mutableListOf()
+                    for (json in it.result) {
+                        val car = Car.fromJSON(json.data, json.id)
+                        cars.add(car)
+                    }
+                    callback(cars)
                 }
 
-                if (snapshot != null && !snapshot.isEmpty) {
-                    val students: MutableList<Student> = mutableListOf()
-                    for (doc in snapshot.documents) {
-                        val student = doc.data?.let { Student.fromJSON(it) }
-                        student?.let { students.add(it) }
-                    }
-                    callback(students)
-                } else {
-                    callback(emptyList())
+                false -> {
+                    callback(mutableListOf())
                 }
             }
+        }
     }
+
+    fun getCarById(id: String, callback: (Map<String, Any>?) -> Unit) {
+        val query = db.collection(CARS_COLLECTION_PATH).document(id)
+        query.get().addOnCompleteListener {
+            when (it.isSuccessful) {
+                true -> {
+
+                    callback(it.result.data)
+                }
+
+                false -> callback(null)
+            }
+        }
+    }
+
 
     fun getAllUsers(callback: (List<Pair<User, String>>) -> Unit) {
         db.collection(USERS_COLLECTION_PATH)
@@ -80,14 +127,6 @@ class FirebaseModel {
             }
     }
 
-    fun addStudent(student: Student, callback: () -> Unit) {
-        db.collection(STUDENTS_COLLECTION_PATH)
-            .document(student.id)
-            .set(student.json)
-            .addOnSuccessListener {
-                callback()
-            }
-    }
 
     fun fetchUserImage(imageUrl: String?, callback: (Uri?) -> Unit) {
         if (imageUrl.isNullOrEmpty()) {
@@ -187,13 +226,24 @@ class FirebaseModel {
         uploadUserImage(uid, user.imgUrl) { imageUrl ->
             user.imgUrl = imageUrl ?: DEFAULT_IMAGE_URL
             userRef.set(user.json)
+                .addOnSuccessListener {
+                    callback()
+                }
+                .addOnFailureListener { e ->
+                    Log.e(TAG, "Error adding document", e)
+                }
+        }
+    }
+
+    fun addCar(car: Car, callback: () -> Unit) {
+        db.collection(CARS_COLLECTION_PATH)
+            .document(car.id)
+            .set(car.json)
             .addOnSuccessListener {
                 callback()
-            }
-            .addOnFailureListener { e ->
+            }.addOnFailureListener { e ->
                 Log.e(TAG, "Error adding document", e)
             }
-        }
     }
 
     fun editUserById(userId: String, newUser: User, callback: () -> Unit) {
@@ -222,6 +272,13 @@ class FirebaseModel {
                 Log.e(TAG, "Error checking if email is taken: $exception")
                 onComplete(false)
             }
+
+    }
+
+    fun deleteCarById(id: String) {
+        db.collection(CARS_COLLECTION_PATH).document(id)
+            .delete()
+
     }
 }
 
