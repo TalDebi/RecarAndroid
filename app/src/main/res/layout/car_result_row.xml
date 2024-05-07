@@ -1,18 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="?attr/selectableItemBackground">
+    android:focusable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:clickable="true">
 
     <ImageView
         android:id="@+id/ivCar"
         android:layout_width="107dp"
-        android:layout_height="108dp"
+        android:layout_height="0dp"
         android:layout_marginStart="4dp"
-        android:layout_marginTop="4dp"
-        android:layout_marginBottom="4dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:scaleType="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -27,7 +31,6 @@
         android:layout_marginBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/tvPrice"
-        app:layout_constraintStart_toEndOf="@+id/ivStudentListRowAvatar"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
@@ -38,6 +41,7 @@
             android:layout_height="wrap_content"
             android:text="text"
             android:textSize="12sp"
+            android:clickable="false"
 
             app:chipIcon="@drawable/factory_24px" />
 
@@ -47,6 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="text"
+            android:clickable="false"
             android:textSize="12sp"
             app:chipIcon="@drawable/directions_car_24px" />
 
@@ -56,6 +61,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="text"
+            android:clickable="false"
+            android:textSize="12sp"
             app:chipIcon="@drawable/brush_24px" />
 
 
@@ -65,6 +72,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="1994"
+            android:clickable="false"
             android:textSize="12sp"
             app:chipIcon="@drawable/date_range_24px" />
 
@@ -74,6 +82,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="500,000"
+            android:clickable="false"
             android:textSize="12sp"
             app:chipIcon="@drawable/speed_24px" />
 

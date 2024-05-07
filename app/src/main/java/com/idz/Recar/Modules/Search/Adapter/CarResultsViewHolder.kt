@@ -1,6 +1,8 @@
 package com.idz.Recar.Modules.Search.Adapter
 
 import android.graphics.Color
+import android.icu.text.NumberFormat
+import android.icu.util.Currency
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -69,7 +71,10 @@ class CarResultViewHolder(
             makeChip?.text = car.make
             modelChip?.text = car.model
             yearChip?.text = car.year.toString()
-            priceView?.text = car.price.toString()
+            val format = NumberFormat.getCurrencyInstance()
+            format.maximumFractionDigits = 0
+            format.currency = Currency.getInstance("ILS")
+            priceView?.text = format.format(car.price.toDouble())
             colorChip?.text = car.color
             mileageChip?.text = car.mileage.toString()
 

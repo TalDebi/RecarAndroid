@@ -31,6 +31,10 @@ import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.idz.Recar.base.FireBaseStorage
 import com.idz.Recar.base.VollyQueue
 import com.idz.Recar.dao.AppLocalDatabase
+import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
+import com.idz.Recar.dao.CarDao.Companion.MIN_MILEAGE
+import com.idz.Recar.dao.CarDao.Companion.MIN_PRICE
+import com.idz.Recar.dao.CarDao.Companion.MIN_YEAR
 import java.util.UUID
 
 class CarFormFragment : Fragment() {
@@ -104,6 +108,42 @@ class CarFormFragment : Fragment() {
             Toast.makeText(requireContext(), "All fields are required", Toast.LENGTH_SHORT).show()
             toggleLoading(false)
             return false
+        }
+
+        if (year.toInt() < MIN_YEAR || year.toInt() > MAX_YEAR) {
+            Toast.makeText(
+                requireContext(),
+                "Year must be between $MIN_YEAR and $MAX_YEAR",
+                Toast.LENGTH_SHORT
+            ).show()
+            toggleLoading(false)
+            return false
+        }
+        if (mileage.toInt() < MIN_MILEAGE || mileage.toInt() > MAX_YEAR) {
+            Toast.makeText(
+                requireContext(),
+                "Mileage must be between $MIN_MILEAGE and $MAX_YEAR",
+                Toast.LENGTH_SHORT
+            ).show()
+            toggleLoading(false)
+            return false
+        }
+        if (price.toInt() < MIN_PRICE || price.toInt() > MAX_YEAR) {
+            Toast.makeText(
+                requireContext(),
+                "Price must be between $MIN_PRICE and $MAX_YEAR",
+                Toast.LENGTH_SHORT
+            ).show()
+            toggleLoading(false)
+            return false
+        }
+
+        if (hand.toInt() < 0) {
+            Toast.makeText(
+                requireContext(),
+                "Hand must be greater than 0",
+                Toast.LENGTH_SHORT
+            ).show()
         }
 
         return true
