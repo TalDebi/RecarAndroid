@@ -17,6 +17,7 @@ import androidx.core.widget.doOnTextChanged
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.android.volley.Request
@@ -289,7 +290,14 @@ class SearchFragment : Fragment() {
 
         resultsRecyclerView = binding.resultList
         resultsRecyclerView?.setHasFixedSize(true)
-        resultsRecyclerView?.layoutManager = LinearLayoutManager(context)
+        val layoutManager = LinearLayoutManager(this.context, LinearLayoutManager.VERTICAL, false)
+        resultsRecyclerView?.layoutManager = layoutManager
+
+        val dividerItemDecoration = DividerItemDecoration(
+            resultsRecyclerView?.context,
+            layoutManager.orientation
+        )
+        resultsRecyclerView?.addItemDecoration(dividerItemDecoration)
         adapter = CarResultRecyclerAdapter(viewModel.results?.value)
         adapter?.listener = object : OnItemClickListener {
 

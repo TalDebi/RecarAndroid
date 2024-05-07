@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.idz.Recar.Model.Model
@@ -77,7 +78,13 @@ class MyCarsFragment : Fragment() {
 
         resultsRecyclerView = binding.rvCars
         resultsRecyclerView?.setHasFixedSize(true)
-        resultsRecyclerView?.layoutManager = LinearLayoutManager(context)
+        val layoutManager = LinearLayoutManager(this.context, LinearLayoutManager.VERTICAL, false)
+        resultsRecyclerView?.layoutManager = layoutManager
+
+        val dividerItemDecoration = DividerItemDecoration(
+            resultsRecyclerView?.context,
+            layoutManager.orientation
+        )
         adapter = CarResultRecyclerAdapter(viewModel.results?.value)
         adapter?.listener = object : OnItemClickListener {
 

@@ -5,16 +5,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/rvCarousel"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:clipChildren="false"
-            android:clipToPadding="false"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvCarousel"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
 
     <TextView
@@ -97,24 +97,26 @@
         app:layout_constraintStart_toEndOf="@+id/tvCityLabel"
         app:layout_constraintTop_toBottomOf="@+id/tvYear" />
 
-    <HorizontalScrollView
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="0dp"
         android:layout_marginTop="30dp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvCityLabel">
+        app:layout_constraintTop_toBottomOf="@+id/tvCityLabel"
+        android:fadeScrollbars="false">
 
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/cg"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:singleLine="true">
+            android:layout_height="match_parent">
 
 
         </com.google.android.material.chip.ChipGroup>
-    </HorizontalScrollView>
 
+    </ScrollView>
 
     <ImageButton
         android:id="@+id/btnEdit"

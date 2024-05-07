@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="130dp"
+    android:clickable="true"
     android:focusable="true"
-    android:foreground="?attr/selectableItemBackground"
-    android:clickable="true">
+    android:foreground="?attr/selectableItemBackground">
 
     <ImageView
         android:id="@+id/ivCar"
@@ -39,31 +38,34 @@
             style="@style/Widget.Material3.Chip.Assist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="false"
             android:text="text"
             android:textSize="12sp"
-            android:clickable="false"
 
-            app:chipIcon="@drawable/factory_24px" />
+            app:chipIcon="@drawable/factory_24px"
+            app:chipMinTouchTargetSize="10dp" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/model_chip"
             style="@style/Widget.Material3.Chip.Assist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="text"
             android:clickable="false"
+            android:text="text"
             android:textSize="12sp"
-            app:chipIcon="@drawable/directions_car_24px" />
+            app:chipIcon="@drawable/directions_car_24px"
+            app:chipMinTouchTargetSize="10dp" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/color_chip"
             style="@style/Widget.Material3.Chip.Assist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="text"
             android:clickable="false"
+            android:text="text"
             android:textSize="12sp"
-            app:chipIcon="@drawable/brush_24px" />
+            app:chipIcon="@drawable/brush_24px"
+            app:chipMinTouchTargetSize="10dp" />
 
 
         <com.google.android.material.chip.Chip
@@ -71,20 +73,22 @@
             style="@style/Widget.Material3.Chip.Assist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="1994"
             android:clickable="false"
+            android:text="1994"
             android:textSize="12sp"
-            app:chipIcon="@drawable/date_range_24px" />
+            app:chipIcon="@drawable/date_range_24px"
+            app:chipMinTouchTargetSize="10dp" />
 
         <com.google.android.material.chip.Chip
             android:id="@+id/mileage_chip"
             style="@style/Widget.Material3.Chip.Assist"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="500,000"
             android:clickable="false"
+            android:text="500,000"
             android:textSize="12sp"
-            app:chipIcon="@drawable/speed_24px" />
+            app:chipIcon="@drawable/speed_24px"
+            app:chipMinTouchTargetSize="10dp" />
 
 
     </com.google.android.material.chip.ChipGroup>
