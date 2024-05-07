@@ -56,8 +56,8 @@ class CarFormFragment : Fragment() {
     private var imageUris: List<Uri>? = null
     private val carDao = AppLocalDatabase.db.carDao()
 
-    private lateinit var registerButton: MaterialButton
-    private lateinit var registerProgressBar: ProgressBar
+    private lateinit var submitButton: MaterialButton
+    private lateinit var submitProgressBar: ProgressBar
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -151,8 +151,8 @@ class CarFormFragment : Fragment() {
     }
 
     private fun toggleLoading(isLoading: Boolean) {
-        registerProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
-        registerButton.isEnabled = !isLoading
+        submitProgressBar.visibility = if (isLoading) View.VISIBLE else View.GONE
+        submitButton.isEnabled = !isLoading
     }
 
     private fun setupUI(view: View) {
@@ -166,6 +166,8 @@ class CarFormFragment : Fragment() {
         mileageText = view.findViewById(R.id.mileageText)
         cityText = view.findViewById(R.id.cityText)
         imageCarousel = view.findViewById(R.id.rvCarousel)
+        submitButton = view.findViewById(R.id.submitButton)
+        submitProgressBar = view.findViewById(R.id.registerProgressBar)
         getOptions("make", makeText)
         getOptions("model", modelText)
         imageCarousel.layoutManager = CarouselLayoutManager()
@@ -188,20 +190,20 @@ class CarFormFragment : Fragment() {
                     cityText.setText(currCar.city)
                     imageCarousel.adapter = ImageAdapter(currCar.imageUrls, false)
                     imageSuccessList = currCar.imageUrls.toMutableList()
+                    submitButton.text = "UPDATE"
 
                 }
             })
         }
 
-        registerButton = view.findViewById(R.id.submitButton)
-        registerProgressBar = view.findViewById(R.id.registerProgressBar)
+
 
         editImageButton.setOnClickListener {
             pickMultipleMedia.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
         }
 
 
-        registerButton.setOnClickListener {
+        submitButton.setOnClickListener {
             toggleLoading(true)
 
             if (validateForm()) {
