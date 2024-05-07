@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+    <uses-permission
+        android:name="android.permission.READ_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <uses-permission android:name="android.permission.INTERNET" />
 
@@ -17,14 +18,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Recar"
         tools:targetApi="31">
-        <activity
-            android:name=".Modules.Students.StudentsRcyclerViewActivity"
-            android:exported="true">
-        </activity>
-        <activity
-            android:name=".Modules.Students.StudentsListActivity"
-            android:exported="true">
-        </activity>
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
