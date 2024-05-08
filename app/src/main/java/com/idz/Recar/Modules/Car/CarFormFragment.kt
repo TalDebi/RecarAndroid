@@ -31,6 +31,7 @@ import com.idz.Recar.Utils.SharedPreferencesHelper
 import com.idz.Recar.base.FireBaseStorage
 import com.idz.Recar.base.VollyQueue
 import com.idz.Recar.dao.AppLocalDatabase
+import com.idz.Recar.dao.CarDao.Companion.MAX_MILEAGE
 import com.idz.Recar.dao.CarDao.Companion.MAX_PRICE
 import com.idz.Recar.dao.CarDao.Companion.MAX_YEAR
 import com.idz.Recar.dao.CarDao.Companion.MIN_MILEAGE
@@ -120,10 +121,10 @@ class CarFormFragment : Fragment() {
             toggleLoading(false)
             return false
         }
-        if (mileage.toInt() < MIN_MILEAGE || mileage.toInt() > MAX_YEAR) {
+        if (mileage.toInt() < MIN_MILEAGE || mileage.toInt() > MAX_MILEAGE) {
             Toast.makeText(
                 requireContext(),
-                "Mileage must be between $MIN_MILEAGE and $MAX_YEAR",
+                "Mileage must be between $MIN_MILEAGE and $MAX_MILEAGE",
                 Toast.LENGTH_SHORT
             ).show()
             toggleLoading(false)
@@ -132,7 +133,7 @@ class CarFormFragment : Fragment() {
         if (price.toInt() < MIN_PRICE || price.toInt() > MAX_PRICE) {
             Toast.makeText(
                 requireContext(),
-                "Price must be between $MIN_PRICE and $MAX_YEAR",
+                "Price must be between $MIN_PRICE and $MAX_PRICE",
                 Toast.LENGTH_SHORT
             ).show()
             toggleLoading(false)
